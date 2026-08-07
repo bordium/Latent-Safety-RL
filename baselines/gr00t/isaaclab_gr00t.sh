@@ -101,6 +101,10 @@ Run and verify:
   sim-headless     Launch the basic Isaac Lab simulation without a GUI
   eval-smoke       Run GR00T Nut Pouring (30 inference cycles, 1 rollout)
   eval-full        Run GR00T Nut Pouring (1000 cycles, 20 rollouts)
+  eval-latest      Download NVIDIA's latest tuned checkpoint (if not already
+                   present) from Hugging Face and evaluate it directly,
+                   bypassing any local training-run checkpoint. See
+                   https://github.com/isaac-sim/IsaacLabEvalTasks/blob/main/doc/checkpoints.md
   offline-eval     Compare policy actions with the demonstration dataset
   train-smoke      Attempt one local LoRA optimizer step on GPU 0
   show-config      Print resolved paths, versions, and settings
@@ -114,6 +118,8 @@ Fresh Ubuntu example:
 
 Useful overrides:
   SKIP_TUNED_MODEL=1        Do not download the tuned checkpoint in bootstrap
+  FORCE_DOWNLOAD=1          Re-download the tuned checkpoint (or other Hugging
+                            Face assets) even if already present locally
   AUTO_INSTALL_DRIVER=1     Allow installation of the recommended NVIDIA driver
                             (default: 0; check only, never install automatically)
   MODEL_PATH=/abs/path      Evaluate a specific checkpoint
@@ -492,12 +498,25 @@ PY
 download_hf_snapshot() {
   local repo_id="$1" repo_type="$2" destination="$3" marker="$4"
   activate_conda
-  if [[ -e "$destination/$marker" && "${FORCE_DOWNLOAD:-0}" != "1" ]]; then
+  local incomplete_downloads=()
+  if [[ -d "$destination/.cache/huggingface/download" ]]; then
+    mapfile -t incomplete_downloads < <(
+      find "$destination/.cache/huggingface/download" -name '*.incomplete' -print
+    )
+  fi
+  if [[ -e "$destination/$marker" && ${#incomplete_downloads[@]} -eq 0 &&
+        "${FORCE_DOWNLOAD:-0}" != "1" ]]; then
     printf 'Hugging Face asset already present: %s\n' "$destination"
     return
   fi
+  python -c "import huggingface_hub" >/dev/null 2>&1 ||
+    python -m pip install -q "huggingface_hub[cli]"
   mkdir -p "$destination"
-  info "Downloading $repo_id to $destination"
+  if [[ ${#incomplete_downloads[@]} -gt 0 ]]; then
+    info "Resuming ${#incomplete_downloads[@]} interrupted file(s) at $destination"
+  else
+    info "Downloading $repo_id to $destination"
+  fi
   HF_REPO_ID="$repo_id" HF_REPO_TYPE="$repo_type" HF_DESTINATION="$destination" python - <<'PY'
 import os
 from huggingface_hub import snapshot_download
@@ -771,6 +790,13 @@ run_eval() {
   fi
 }
 
+eval_latest_checkpoint() {
+  local default_rollout_length="$1" default_rollouts="$2"
+  download_tuned_model
+  local MODEL_PATH="$TUNED_MODEL_PATH"
+  run_eval "$default_rollout_length" "$default_rollouts"
+}
+
 offline_eval() {
   activate_conda
   require_file "$GROOT_DIR/scripts/eval_policy.py"
@@ -880,6 +906,7 @@ main() {
     sim-headless) run_sim 1 ;;
     eval-smoke) run_eval 30 1 ;;
     eval-full) run_eval 1000 20 ;;
+    eval-latest) eval_latest_checkpoint 30 1 ;;
     offline-eval) offline_eval ;;
     train-smoke) train_smoke ;;
     show-config) show_config ;;
