@@ -55,6 +55,8 @@ Fresh-computer setup:
                             Python dependencies, and compatibility patches
   setup-system              Install/check Ubuntu packages, driver, CUDA 12.8
   setup-software             Set up Conda, repos, Python packages, and patches
+  setup-repositories         Just clone/pin Isaac Lab, IsaacLabEvalTasks, and
+                            the GR00T submodule (no Conda/Python install)
   apply-training-patches    Reapply the two RTX 4060 training compatibility fixes
 
 Verify:
@@ -214,18 +216,24 @@ repo_is_dirty() {
 
 clone_and_pin() {
   local url="$1" destination="$2" ref="$3" commit="$4" label="$5"
+  local freshly_cloned=0
 
   if [[ ! -d "$destination/.git" ]]; then
     [[ ! -e "$destination" || -z "$(find "$destination" -mindepth 1 -maxdepth 1 -print -quit 2>/dev/null)" ]] ||
       die "$destination exists and is not an empty Git repository."
     info "Cloning $label"
     git clone --filter=blob:none --no-checkout "$url" "$destination"
+    freshly_cloned=1
   fi
 
   local current
   current="$(git -C "$destination" rev-parse HEAD 2>/dev/null || true)"
   if [[ "$current" != "$commit" ]]; then
-    if repo_is_dirty "$destination"; then
+    # A clone we just made ourselves has an empty index against a populated
+    # HEAD, which `git status` reports as every tracked file being deleted.
+    # That's the normal --no-checkout state, not real local changes, so only
+    # run the dirty check against a repo that already existed beforehand.
+    if [[ "$freshly_cloned" != "1" ]] && repo_is_dirty "$destination"; then
       die "$label has local changes at $destination; preserve them before switching to $commit."
     fi
     info "Pinning $label to $ref"
@@ -558,6 +566,7 @@ main() {
     bootstrap) bootstrap ;;
     setup-system) setup_system ;;
     setup-software) setup_software ;;
+    setup-repositories) mkdir -p "$ISAAC_ROOT" && setup_repositories ;;
     apply-training-patches) apply_training_patches ;;
     doctor) doctor ;;
     show-config) show_config ;;
