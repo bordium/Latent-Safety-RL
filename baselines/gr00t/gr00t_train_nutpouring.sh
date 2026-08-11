@@ -18,8 +18,8 @@ SCRIPT_NAME="$(basename "$0")"
 SCRIPT_PATH="$(realpath "$0")"
 SCRIPT_DIR="$(dirname "$SCRIPT_PATH")"
 
-# shellcheck source=./gr00t_common.sh
-source "$SCRIPT_DIR/gr00t_common.sh"
+# shellcheck source=./deps/gr00t_common.sh
+source "$SCRIPT_DIR/deps/gr00t_common.sh"
 
 usage() {
   cat <<EOF

@@ -114,6 +114,11 @@ activate_conda() {
   # shellcheck disable=SC1091
   source "$conda_base/etc/profile.d/conda.sh"
   conda activate "$CONDA_ENV"
+  # Isaac Sim's bundled extensions (e.g. omni.kit.test's coverage/sqlite3
+  # chain) need a newer libstdc++ (CXXABI_1.3.15+) than Ubuntu 22.04 ships.
+  # Conda's own copy has it; put it ahead of the system one so the linker
+  # finds it first.
+  export LD_LIBRARY_PATH="$CONDA_PREFIX/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 }
 
 # Downloads a Hugging Face repo snapshot into $destination, skipping the

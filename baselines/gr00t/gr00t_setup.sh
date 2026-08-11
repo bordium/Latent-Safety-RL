@@ -21,8 +21,8 @@ SCRIPT_NAME="$(basename "$0")"
 SCRIPT_PATH="$(realpath "$0")"
 SCRIPT_DIR="$(dirname "$SCRIPT_PATH")"
 
-# shellcheck source=./gr00t_common.sh
-source "$SCRIPT_DIR/gr00t_common.sh"
+# shellcheck source=./deps/gr00t_common.sh
+source "$SCRIPT_DIR/deps/gr00t_common.sh"
 
 MINICONDA_URL="${MINICONDA_URL:-https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh}"
 
@@ -48,41 +48,41 @@ AUTO_INSTALL_DRIVER="${AUTO_INSTALL_DRIVER:-0}"
 
 usage() {
   cat <<EOF
-Usage: $SCRIPT_NAME COMMAND
+  Usage: $SCRIPT_NAME COMMAND
 
-Fresh-computer setup:
-  bootstrap                 Install system packages, NVIDIA/CUDA, Conda, repos,
-                            Python dependencies, and compatibility patches
-  setup-system              Install/check Ubuntu packages, driver, CUDA 12.8
-  setup-software             Set up Conda, repos, Python packages, and patches
-  setup-repositories         Just clone/pin Isaac Lab, IsaacLabEvalTasks, and
-                            the GR00T submodule (no Conda/Python install)
-  apply-training-patches    Reapply the two RTX 4060 training compatibility fixes
+  Fresh-computer setup:
+    bootstrap                 Install system packages, NVIDIA/CUDA, Conda, repos,
+                              Python dependencies, and compatibility patches
+    setup-system              Install/check Ubuntu packages, driver, CUDA 12.8
+    setup-software             Set up Conda, repos, Python packages, and patches
+    setup-repositories         Just clone/pin Isaac Lab, IsaacLabEvalTasks, and
+                              the GR00T submodule (no Conda/Python install)
+    apply-training-patches    Reapply the two RTX 4060 training compatibility fixes
 
-Verify:
-  doctor            Check OS, pinned repos, packages, CUDA, and GPU access
-  self-test         Check this Bash file without requiring Isaac Lab
-  show-config       Print resolved paths, versions, and settings
+  Verify:
+    doctor            Check OS, pinned repos, packages, CUDA, and GPU access
+    self-test         Check this Bash file without requiring Isaac Lab
+    show-config       Print resolved paths, versions, and settings
 
-Next steps once setup passes:
-  ./gr00t_run_nutpouring.sh    Download and run the published Nut Pouring checkpoint
-  ./gr00t_train_nutpouring.sh  Fine-tune your own Nut Pouring checkpoint
+  Next steps once setup passes:
+    ./gr00t_run_nutpouring.sh    Download and run the published Nut Pouring checkpoint
+    ./gr00t_train_nutpouring.sh  Fine-tune your own Nut Pouring checkpoint
 
-Fresh Ubuntu example:
-  chmod +x $SCRIPT_NAME
-  ./$SCRIPT_NAME bootstrap
-  ./$SCRIPT_NAME doctor
+  Fresh Ubuntu example:
+    chmod +x $SCRIPT_NAME
+    ./$SCRIPT_NAME bootstrap
+    ./$SCRIPT_NAME doctor
 
-Useful overrides:
-  AUTO_INSTALL_DRIVER=1     Allow installation of the recommended NVIDIA driver
-                            (default: 0; check only, never install automatically)
-  ISAAC_ROOT=/abs/path CONDA_ROOT=/abs/path CONDA_ENV=another-env
-                            (default: project-local ./isaac and ./conda)
+  Useful overrides:
+    AUTO_INSTALL_DRIVER=1     Allow installation of the recommended NVIDIA driver
+                              (default: 0; check only, never install automatically)
+    ISAAC_ROOT=/abs/path CONDA_ROOT=/abs/path CONDA_ENV=another-env
+                              (default: project-local ./isaac and ./conda)
 
-Notes:
-  * A newly installed NVIDIA driver requires a reboot. Re-run bootstrap after it.
-  * Everything installed by this script lives under \$ISAAC_ROOT and \$CONDA_ROOT,
-    which default to directories next to this script.
+  Notes:
+    * A newly installed NVIDIA driver requires a reboot. Re-run bootstrap after it.
+    * Everything installed by this script lives under \$ISAAC_ROOT and \$CONDA_ROOT,
+      which default to directories next to this script.
 EOF
 }
 
@@ -154,11 +154,11 @@ ensure_nvidia_driver() {
   "${SUDO[@]}" ubuntu-drivers install
   cat >&2 <<EOF
 
-The NVIDIA driver was installed or upgraded. Reboot the computer, then run:
-  ./$SCRIPT_NAME bootstrap
+  The NVIDIA driver was installed or upgraded. Reboot the computer, then run:
+    ./$SCRIPT_NAME bootstrap
 
-Setup intentionally stops here because the new kernel module cannot be validated
-until after reboot.
+  Setup intentionally stops here because the new kernel module cannot be validated
+  until after reboot.
 EOF
   exit 42
 }
@@ -309,7 +309,8 @@ install_python_stack() {
     "prettytable==3.3.0" \
     "hidapi==0.14.0.post2" \
     "lxml>=5.2.2" \
-    "trimesh>=4.4.0"
+    "trimesh>=4.4.0" \
+    "tyro>=0.8.0"
   python -m pip install -e "$EVAL_REPO/source/isaaclab_eval_tasks"
 
   info "Installed core package versions"
@@ -546,7 +547,7 @@ PY
 
 self_test() {
   bash -n "$SCRIPT_PATH"
-  bash -n "$SCRIPT_DIR/gr00t_common.sh"
+  bash -n "$SCRIPT_DIR/deps/gr00t_common.sh"
   [[ "$ISAACLAB_COMMIT" =~ ^[0-9a-f]{40}$ ]]
   [[ "$EVAL_REPO_COMMIT" =~ ^[0-9a-f]{40}$ ]]
   [[ "$GROOT_COMMIT" =~ ^[0-9a-f]{40}$ ]]
@@ -554,7 +555,7 @@ self_test() {
   [[ "$AUTO_INSTALL_DRIVER" =~ ^[01]$ ]]
   printf 'Bash syntax and pinned-configuration checks passed.\n'
   if command -v shellcheck >/dev/null 2>&1; then
-    shellcheck "$SCRIPT_PATH" "$SCRIPT_DIR/gr00t_common.sh"
+    shellcheck "$SCRIPT_PATH" "$SCRIPT_DIR/deps/gr00t_common.sh"
     printf 'ShellCheck passed.\n'
   else
     printf 'ShellCheck is not installed; static lint was skipped.\n'
