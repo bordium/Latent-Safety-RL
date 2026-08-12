@@ -1,16 +1,20 @@
 #!/usr/bin/env bash
-# Install and pin the Isaac Lab + IsaacLabEvalTasks + Isaac GR00T stack.
+# Install and pin the IsaacLabEvalTasks + Isaac GR00T stack on top of an
+# existing Isaac Lab installation.
+#
+# Prerequisite: ../isaaclab_setup.sh bootstrap (installs the shared Conda
+# environment, system packages, driver, CUDA, and Isaac Lab itself). This
+# script only layers GR00T-specific pieces on top of that: the
+# IsaacLabEvalTasks repo, the pinned Isaac-GR00T submodule, GR00T's Python
+# dependencies, and compatibility patches.
 #
 # Tested target:
 #   Ubuntu 22.04/24.04 x86_64, Python 3.11, CUDA Toolkit 12.8
-#   Isaac Sim 5.0.0, Isaac Lab v2.2.0
 #   IsaacLabEvalTasks 460f2878... and its pinned Isaac-GR00T submodule
 #
-# This script only installs the environment (system packages, driver, CUDA,
-# Conda, repos, Python dependencies, compatibility patches). It does not
-# download any checkpoints or datasets -- use gr00t_run_nutpouring.sh for the
-# published Nut Pouring checkpoint, or gr00t_train_nutpouring.sh to fine-tune
-# your own.
+# This script does not download any checkpoints or datasets -- use
+# gr00t_run_nutpouring.sh for the published Nut Pouring checkpoint, or
+# gr00t_train_nutpouring.sh to fine-tune your own.
 #
 # Idempotent: rerunning preserves existing repositories and environments,
 # verifies pinned revisions, and only installs what's missing.
@@ -24,192 +28,60 @@ SCRIPT_DIR="$(dirname "$SCRIPT_PATH")"
 # shellcheck source=./deps/gr00t_common.sh
 source "$SCRIPT_DIR/deps/gr00t_common.sh"
 
-MINICONDA_URL="${MINICONDA_URL:-https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh}"
-
-ISAACLAB_URL="${ISAACLAB_URL:-https://github.com/isaac-sim/IsaacLab.git}"
-ISAACLAB_REF="${ISAACLAB_REF:-v2.2.0}"
-ISAACLAB_COMMIT="${ISAACLAB_COMMIT:-46dff135f44683f031edf346e544fcfd8456b2bb}"
 EVAL_REPO_URL="${EVAL_REPO_URL:-https://github.com/isaac-sim/IsaacLabEvalTasks.git}"
 EVAL_REPO_REF="${EVAL_REPO_REF:-460f2878bdcb4db2d21913db789174fb316b73e2}"
 EVAL_REPO_COMMIT="${EVAL_REPO_COMMIT:-460f2878bdcb4db2d21913db789174fb316b73e2}"
 GROOT_URL="${GROOT_URL:-https://github.com/NVIDIA/Isaac-GR00T.git}"
 GROOT_COMMIT="${GROOT_COMMIT:-755876a9afdb41ca6eb6383b36f4a0adb085c73f}"
 
-CUDA_TOOLKIT_PACKAGE="${CUDA_TOOLKIT_PACKAGE:-cuda-toolkit-12-8}"
-MIN_DRIVER_MAJOR="${MIN_DRIVER_MAJOR:-570}"
-AUTO_INSTALL_DRIVER="${AUTO_INSTALL_DRIVER:-0}"
-
-[[ "$AUTO_INSTALL_DRIVER" =~ ^[01]$ ]] || {
-  printf 'ERROR: AUTO_INSTALL_DRIVER must be 0 or 1 (received: %s)\n' \
-    "$AUTO_INSTALL_DRIVER" >&2
-  exit 1
-}
-
 usage() {
   cat <<EOF
-  Usage: $SCRIPT_NAME COMMAND
+Usage: $SCRIPT_NAME COMMAND
+
+Prerequisite (run once, shared across baselines):
+  ../isaaclab_setup.sh bootstrap
 
 Fresh-computer setup:
-  bootstrap                 Install system packages, NVIDIA/CUDA, Conda, repos,
-                            Python dependencies, and compatibility patches
-  setup-system              Install/check Ubuntu packages, driver, CUDA 12.8
-  setup-software             Set up Conda, repos, Python packages, and patches
-  setup-repositories         Just clone/pin Isaac Lab, IsaacLabEvalTasks, and
-                            the GR00T submodule (no Conda/Python install)
+  bootstrap                 Clone/pin repos, install GR00T's Python
+                            dependencies, and apply compatibility patches
+  setup-software             Same as bootstrap (kept for symmetry)
+  setup-repositories         Just clone/pin IsaacLabEvalTasks and the GR00T
+                            submodule (no Python install)
   apply-training-patches    Reapply the two RTX 4060 training compatibility fixes
-  apply-warp-patch          Reapply the omni.warp/omni.warp.core R580+ driver fix
 
-  Verify:
-    doctor            Check OS, pinned repos, packages, CUDA, and GPU access
-    self-test         Check this Bash file without requiring Isaac Lab
-    show-config       Print resolved paths, versions, and settings
+Verify:
+  doctor            Check pinned repos, packages, and downloaded assets
+  self-test         Check this Bash file without requiring Isaac Lab
+  show-config       Print resolved paths, versions, and settings
 
-  Next steps once setup passes:
-    ./gr00t_run_nutpouring.sh    Download and run the published Nut Pouring checkpoint
-    ./gr00t_train_nutpouring.sh  Fine-tune your own Nut Pouring checkpoint
+Next steps once setup passes:
+  ./gr00t_run_nutpouring.sh    Download and run the published Nut Pouring checkpoint
+  ./gr00t_train_nutpouring.sh  Fine-tune your own Nut Pouring checkpoint
 
-  Fresh Ubuntu example:
-    chmod +x $SCRIPT_NAME
-    ./$SCRIPT_NAME bootstrap
-    ./$SCRIPT_NAME doctor
+Fresh Ubuntu example:
+  ../isaaclab_setup.sh bootstrap
+  chmod +x $SCRIPT_NAME
+  ./$SCRIPT_NAME bootstrap
+  ./$SCRIPT_NAME doctor
 
-  Useful overrides:
-    AUTO_INSTALL_DRIVER=1     Allow installation of the recommended NVIDIA driver
-                              (default: 0; check only, never install automatically)
-    ISAAC_ROOT=/abs/path CONDA_ROOT=/abs/path CONDA_ENV=another-env
-                              (default: project-local ./isaac and ./conda)
+Useful overrides:
+  ISAAC_ROOT=/abs/path CONDA_ROOT=/abs/path CONDA_ENV=another-env
+                            (default: project-local ./isaac and ./conda,
+                            shared with ../isaaclab_setup.sh)
 
-  Notes:
-    * A newly installed NVIDIA driver requires a reboot. Re-run bootstrap after it.
-    * Everything installed by this script lives under \$ISAAC_ROOT and \$CONDA_ROOT,
-      which default to directories next to this script.
+Notes:
+  * Everything installed by this script lives under \$ISAAC_ROOT and \$CONDA_ROOT,
+    which default to directories at the repo root.
+  * 'pip check' may report a Torch build-tag mismatch between Isaac Sim and
+    GR00T's own [base] extras; this script reinstalls the cu128 build GR00T
+    is validated against right after, per IsaacLabEvalTasks' own
+    documentation of the GR00T integration.
 EOF
-}
-
-sudo_prefix() {
-  if (( EUID == 0 )); then
-    SUDO=()
-  else
-    require_command sudo
-    SUDO=(sudo)
-  fi
-}
-
-install_system_packages() {
-  assert_supported_host
-  sudo_prefix
-  info "Installing Ubuntu build, graphics, and media dependencies"
-  "${SUDO[@]}" apt-get update
-  DEBIAN_FRONTEND=noninteractive "${SUDO[@]}" apt-get install -y --no-install-recommends \
-    build-essential \
-    ca-certificates \
-    cmake \
-    curl \
-    ffmpeg \
-    git \
-    libglib2.0-0 \
-    libgl1 \
-    libsm6 \
-    libxext6 \
-    libxrender1 \
-    libvulkan1 \
-    ninja-build \
-    pciutils \
-    pkg-config \
-    ubuntu-drivers-common \
-    unzip \
-    vulkan-tools \
-    wget
-}
-
-driver_is_usable() {
-  command -v nvidia-smi >/dev/null 2>&1 && nvidia-smi >/dev/null 2>&1
-}
-
-ensure_nvidia_driver() {
-  require_command lspci
-  local pci_devices
-  pci_devices="$(lspci)"
-  grep -qi 'NVIDIA' <<<"$pci_devices" || die "No NVIDIA GPU was detected by lspci."
-
-  if driver_is_usable; then
-    local driver_version driver_major
-    driver_version="$(nvidia-smi --query-gpu=driver_version --format=csv,noheader | head -n 1 | tr -d ' ')"
-    driver_major="${driver_version%%.*}"
-    [[ "$driver_major" =~ ^[0-9]+$ ]] || die "Could not parse NVIDIA driver version: $driver_version"
-    if (( driver_major >= MIN_DRIVER_MAJOR )); then
-      printf 'NVIDIA driver %s is usable (minimum major version: %s).\n' \
-        "$driver_version" "$MIN_DRIVER_MAJOR"
-      return
-    fi
-    warn "NVIDIA driver $driver_version is older than the CUDA 12.8 target."
-  else
-    warn "nvidia-smi is unavailable; the NVIDIA kernel driver is not usable yet."
-  fi
-
-  if [[ "$AUTO_INSTALL_DRIVER" != "1" ]]; then
-    die "Install Ubuntu's recommended NVIDIA driver, reboot, and rerun this command."
-  fi
-
-  sudo_prefix
-  info "Installing Ubuntu's recommended NVIDIA driver"
-  "${SUDO[@]}" ubuntu-drivers install
-  cat >&2 <<EOF
-
-  The NVIDIA driver was installed or upgraded. Reboot the computer, then run:
-    ./$SCRIPT_NAME bootstrap
-
-  Setup intentionally stops here because the new kernel module cannot be validated
-  until after reboot.
-EOF
-  exit 42
 }
 
 cuda_128_is_installed() {
   [[ -x "$CUDA_HOME/bin/nvcc" ]] &&
     "$CUDA_HOME/bin/nvcc" --version | grep -Fq "release $CUDA_VERSION"
-}
-
-ensure_cuda_toolkit() {
-  if cuda_128_is_installed; then
-    printf 'CUDA Toolkit %s found at %s.\n' "$CUDA_VERSION" "$CUDA_HOME"
-    return
-  fi
-
-  sudo_prefix
-  info "Installing NVIDIA CUDA Toolkit $CUDA_VERSION without replacing the driver"
-  local keyring_deb
-  keyring_deb="$(mktemp /tmp/cuda-keyring.XXXXXX.deb)"
-  curl -fsSL \
-    "https://developer.download.nvidia.com/compute/cuda/repos/$CUDA_APT_REPO_SUFFIX/x86_64/cuda-keyring_1.1-1_all.deb" \
-    -o "$keyring_deb"
-  "${SUDO[@]}" dpkg -i "$keyring_deb"
-  rm -f "$keyring_deb"
-  "${SUDO[@]}" apt-get update
-  DEBIAN_FRONTEND=noninteractive "${SUDO[@]}" apt-get install -y "$CUDA_TOOLKIT_PACKAGE"
-  cuda_128_is_installed || die "CUDA Toolkit $CUDA_VERSION installation could not be verified at $CUDA_HOME."
-}
-
-ensure_conda() {
-  if [[ ! -x "$CONDA_ROOT/bin/conda" ]]; then
-    [[ ! -e "$CONDA_ROOT" ]] || die "$CONDA_ROOT exists but does not contain a usable Conda installation."
-    info "Installing Miniconda under $CONDA_ROOT"
-    local installer
-    installer="$(mktemp /tmp/miniconda.XXXXXX.sh)"
-    curl -fsSL "$MINICONDA_URL" -o "$installer"
-    bash "$installer" -b -p "$CONDA_ROOT"
-    rm -f "$installer"
-  fi
-
-  # shellcheck disable=SC1091
-  source "$CONDA_ROOT/etc/profile.d/conda.sh"
-  if ! conda env list | awk 'NF && $1 !~ /^#/ {print $1}' | grep -Fxq "$CONDA_ENV"; then
-    info "Creating Conda environment $CONDA_ENV with Python 3.11"
-    conda create -y -n "$CONDA_ENV" --override-channels -c conda-forge python=3.11 pip
-  fi
-  conda activate "$CONDA_ENV"
-  [[ "$(python -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')" == "3.11" ]] ||
-    die "Conda environment $CONDA_ENV does not use Python 3.11."
 }
 
 repo_is_dirty() {
@@ -254,10 +126,15 @@ clone_and_pin() {
   printf '%s: %s\n' "$label" "$current"
 }
 
+require_isaaclab() {
+  [[ -f "$ISAACLAB_DIR/isaaclab.sh" ]] ||
+    die "Isaac Lab not found at $ISAACLAB_DIR. Run '../isaaclab_setup.sh bootstrap' first."
+}
+
 setup_repositories() {
   require_command git
+  require_isaaclab
   mkdir -p "$ISAAC_ROOT"
-  clone_and_pin "$ISAACLAB_URL" "$ISAACLAB_DIR" "$ISAACLAB_REF" "$ISAACLAB_COMMIT" "Isaac Lab"
   clone_and_pin "$EVAL_REPO_URL" "$EVAL_REPO" "$EVAL_REPO_REF" "$EVAL_REPO_COMMIT" "IsaacLabEvalTasks"
 
   if [[ -e "$GROOT_DIR/.git" ]]; then
@@ -283,33 +160,10 @@ setup_repositories() {
 
 install_python_stack() {
   activate_conda
-  require_dir "$ISAACLAB_DIR"
+  require_isaaclab
   require_dir "$GROOT_DIR"
   require_dir "$EVAL_REPO"
   cuda_128_is_installed || die "CUDA Toolkit $CUDA_VERSION is required to build FlashAttention."
-
-  info "Installing Isaac Sim 5.0.0 and Isaac Lab v2.2.0"
-  python -m pip install --upgrade pip wheel ninja "setuptools==80.9.0"
-  python -m pip install \
-    torch==2.7.0 torchvision==0.22.0 \
-    --index-url https://download.pytorch.org/whl/cu128
-  python -m pip install \
-    "isaacsim[all,extscache]==5.0.0" \
-    --extra-index-url https://pypi.nvidia.com
-  # Isaac Lab's setup.py depends on unpinned "warp-lang"; pin it here to the
-  # last release before warp-lang 1.16.0 started requiring a CUDA 13 pip
-  # stack, which conflicts with the CUDA 12.8 toolkit/torch cu124/cu128
-  # wheels this script installs everywhere else.
-  python -m pip install "warp-lang==1.15.0"
-  (
-    cd "$ISAACLAB_DIR"
-    ./isaaclab.sh --install none
-  )
-  # isaaclab.sh installs each source/* extension via `find -exec`, which
-  # swallows a failed `pip install` for any one of them without propagating
-  # it back here -- verify the core package actually landed.
-  python -c "import isaaclab" ||
-    die "isaaclab.sh --install did not install the core 'isaaclab' package; rerun setup-software."
 
   info "Installing the pinned Isaac-GR00T stack"
   # GR00T's own [base] extras pins torch==2.5.1, which predates Blackwell
@@ -355,65 +209,6 @@ PY
     warn "pip reports the expected Isaac Sim/Isaac Lab versus GR00T Torch-version conflicts."
     warn "IsaacLabEvalTasks documents these conflicts for its GR00T integration."
   fi
-}
-
-WARP_FIX_VERSION="${WARP_FIX_VERSION:-1.8.2}"
-WARP_FIX_SOURCE_PACKAGE="${WARP_FIX_SOURCE_PACKAGE:-isaacsim-extscache-kit==5.1.0.0}"
-
-# Isaac Sim 5.0.0 bundles the omni.warp/omni.warp.core Kit extension at
-# version 1.7.1, whose CUDA driver-entry-point lookup for cuDeviceGetUuid
-# fails against NVIDIA R580+ drivers ("Warp CUDA error 36: API call is not
-# supported in the installed CUDA driver"). Fixed upstream in Warp v1.8.1;
-# NVIDIA has not backported it into an Isaac Sim 5.0.0 point release, and no
-# standalone extension package exists outside of a full Isaac Sim release --
-# see https://github.com/isaac-sim/IsaacLab/issues/3477. Isaac Sim 5.1.0
-# bundles the fixed 1.8.2 build, so pull just those two extension folders out
-# of its extscache wheel and drop them in over the broken 1.7.1 ones, leaving
-# everything else (IsaacLab, IsaacLabEvalTasks, Isaac Sim itself) at their
-# tested pins.
-patch_warp_extension() {
-  activate_conda
-  local extscache
-  extscache="$(python -c 'import isaacsim, os; print(os.path.dirname(isaacsim.__file__))')/extscache"
-  require_dir "$extscache"
-
-  if [[ -d "$extscache/omni.warp-$WARP_FIX_VERSION" &&
-        -d "$extscache/omni.warp.core-$WARP_FIX_VERSION+lx64" ]]; then
-    printf 'omni.warp/omni.warp.core %s already installed at %s.\n' "$WARP_FIX_VERSION" "$extscache"
-    return
-  fi
-
-  info "Replacing the broken omni.warp/omni.warp.core 1.7.1 Kit extension with $WARP_FIX_VERSION"
-  local tmp
-  tmp="$(mktemp -d)"
-  # shellcheck disable=SC2064
-  trap "rm -rf '$tmp'" RETURN
-
-  python -m pip download --no-deps -d "$tmp" "$WARP_FIX_SOURCE_PACKAGE" \
-    --extra-index-url https://pypi.nvidia.com
-  local whl
-  whl="$(find "$tmp" -maxdepth 1 -name '*.whl' -print -quit)"
-  [[ -n "$whl" ]] || die "Failed to download $WARP_FIX_SOURCE_PACKAGE."
-
-  (
-    cd "$tmp"
-    unzip -q "$whl" \
-      "isaacsim/extscache/omni.warp-$WARP_FIX_VERSION/*" \
-      "isaacsim/extscache/omni.warp.core-$WARP_FIX_VERSION+lx64/*"
-  )
-  require_dir "$tmp/isaacsim/extscache/omni.warp-$WARP_FIX_VERSION"
-  require_dir "$tmp/isaacsim/extscache/omni.warp.core-$WARP_FIX_VERSION+lx64"
-
-  local old
-  for old in "omni.warp-1.7.1" "omni.warp.core-1.7.1+lx64"; do
-    if [[ -e "$extscache/$old" && ! -e "$extscache/$old.bak" ]]; then
-      mv "$extscache/$old" "$extscache/$old.bak"
-    fi
-  done
-
-  cp -r "$tmp/isaacsim/extscache/omni.warp-$WARP_FIX_VERSION" "$extscache/"
-  cp -r "$tmp/isaacsim/extscache/omni.warp.core-$WARP_FIX_VERSION+lx64" "$extscache/"
-  info "Installed omni.warp/omni.warp.core $WARP_FIX_VERSION at $extscache"
 }
 
 apply_training_patches() {
@@ -468,28 +263,17 @@ print("Patched Python files compile successfully.")
 PY
 }
 
-setup_system() {
-  install_system_packages
-  ensure_nvidia_driver
-  ensure_cuda_toolkit
-  info "System prerequisites passed"
-}
-
 setup_software() {
   assert_supported_host
-  ensure_nvidia_driver
-  ensure_cuda_toolkit
-  ensure_conda
+  require_isaaclab
   setup_repositories
   install_python_stack
-  patch_warp_extension
   apply_training_patches
   mkdir -p "$ISAAC_ROOT/checkpoints" "$ISAAC_ROOT/training_runs" "$RESULTS_DIR" "$DATASETS_ROOT"
-  info "Software setup completed"
+  info "GR00T software setup completed"
 }
 
 bootstrap() {
-  setup_system
   setup_software
   doctor
   info "Bootstrap completed"
@@ -502,15 +286,12 @@ CONDA_ENV=$CONDA_ENV
 CONDA_ROOT=$CONDA_ROOT
 ISAAC_ROOT=$ISAAC_ROOT
 ISAACLAB_DIR=$ISAACLAB_DIR
-ISAACLAB_REF=$ISAACLAB_REF
-ISAACLAB_COMMIT=$ISAACLAB_COMMIT
 EVAL_REPO=$EVAL_REPO
 EVAL_REPO_COMMIT=$EVAL_REPO_COMMIT
 GROOT_DIR=$GROOT_DIR
 GROOT_COMMIT=$GROOT_COMMIT
 CUDA_HOME=$CUDA_HOME
 CUDA_VERSION=$CUDA_VERSION
-AUTO_INSTALL_DRIVER=$AUTO_INSTALL_DRIVER
 VK_ICD_FILENAMES=$VK_ICD_FILENAMES
 EOF
 }
@@ -535,46 +316,22 @@ doctor() {
   assert_supported_host || failures=$((failures + 1))
   activate_conda
 
-  check_repo_commit "$ISAACLAB_DIR" "$ISAACLAB_COMMIT" "Isaac Lab" || failures=$((failures + 1))
+  if [[ -f "$ISAACLAB_DIR/isaaclab.sh" ]]; then
+    printf 'OK Isaac Lab present at: %s (run ../isaaclab_setup.sh doctor for full detail)\n' "$ISAACLAB_DIR"
+  else
+    printf 'FAILED: Isaac Lab not found at %s. Run ../isaaclab_setup.sh bootstrap first.\n' "$ISAACLAB_DIR" >&2
+    failures=$((failures + 1))
+  fi
   check_repo_commit "$EVAL_REPO" "$EVAL_REPO_COMMIT" "IsaacLabEvalTasks" || failures=$((failures + 1))
   check_repo_commit "$GROOT_DIR" "$GROOT_COMMIT" "Isaac-GR00T" || failures=$((failures + 1))
-
-  require_file "$ISAACLAB_DIR/isaaclab.sh"
   require_file "$EVAL_REPO/scripts/evaluate_gn1.py"
 
-  printf '\nNVIDIA driver and CUDA Toolkit:\n'
-  if driver_is_usable; then
-    nvidia-smi --query-gpu=name,driver_version,memory.total,memory.free --format=csv,noheader
-  else
-    printf 'FAILED: nvidia-smi cannot access the NVIDIA GPU.\n' >&2
-    failures=$((failures + 1))
-  fi
-  if cuda_128_is_installed; then
-    "$CUDA_HOME/bin/nvcc" --version | tail -n 1
-  else
-    printf 'FAILED: CUDA Toolkit %s was not found at %s.\n' "$CUDA_VERSION" "$CUDA_HOME" >&2
-    failures=$((failures + 1))
-  fi
-  if [[ -f "$VK_ICD_FILENAMES" ]]; then
-    printf 'OK Vulkan ICD: %s\n' "$VK_ICD_FILENAMES"
-  else
-    warn "NVIDIA Vulkan ICD not found at $VK_ICD_FILENAMES"
-  fi
-
-  printf '\nPython and CUDA imports:\n'
+  printf '\nPython imports:\n'
   if ! python - <<'PY'
 import importlib
 import sys
 
-modules = (
-    "torch",
-    "pinocchio",
-    "pink",
-    "isaaclab",
-    "isaaclab_eval_tasks",
-    "gr00t",
-    "flash_attn",
-)
+modules = ("torch", "isaaclab_eval_tasks", "gr00t", "flash_attn")
 failed = []
 for name in modules:
     try:
@@ -585,26 +342,12 @@ for name in modules:
         print(f"FAILED import: {name}: {exc}", file=sys.stderr)
 
 import torch
-print(f"Python: {sys.version.split()[0]}")
 print(f"Torch: {torch.__version__}")
-print(f"Torch CUDA runtime: {torch.version.cuda}")
 print(f"CUDA available: {torch.cuda.is_available()}")
-if torch.cuda.is_available():
-    print(f"GPU: {torch.cuda.get_device_name(0)}")
 
 raise SystemExit(bool(failed) or not torch.cuda.is_available())
 PY
   then
-    failures=$((failures + 1))
-  fi
-
-  local extscache
-  extscache="$(python -c 'import isaacsim, os; print(os.path.dirname(isaacsim.__file__))' 2>/dev/null)/extscache"
-  if [[ -d "$extscache/omni.warp-$WARP_FIX_VERSION" &&
-        -d "$extscache/omni.warp.core-$WARP_FIX_VERSION+lx64" ]]; then
-    printf 'OK patch: omni.warp/omni.warp.core %s (R580+ driver fix)\n' "$WARP_FIX_VERSION"
-  else
-    printf 'FAILED patch: omni.warp/omni.warp.core %s not found at %s\n' "$WARP_FIX_VERSION" "$extscache" >&2
     failures=$((failures + 1))
   fi
 
@@ -644,11 +387,9 @@ PY
 self_test() {
   bash -n "$SCRIPT_PATH"
   bash -n "$SCRIPT_DIR/deps/gr00t_common.sh"
-  [[ "$ISAACLAB_COMMIT" =~ ^[0-9a-f]{40}$ ]]
   [[ "$EVAL_REPO_COMMIT" =~ ^[0-9a-f]{40}$ ]]
   [[ "$GROOT_COMMIT" =~ ^[0-9a-f]{40}$ ]]
   [[ "$CUDA_VERSION" == "12.8" ]]
-  [[ "$AUTO_INSTALL_DRIVER" =~ ^[01]$ ]]
   printf 'Bash syntax and pinned-configuration checks passed.\n'
   if command -v shellcheck >/dev/null 2>&1; then
     shellcheck "$SCRIPT_PATH" "$SCRIPT_DIR/deps/gr00t_common.sh"
@@ -661,11 +402,9 @@ self_test() {
 main() {
   case "${1:-}" in
     bootstrap) bootstrap ;;
-    setup-system) setup_system ;;
     setup-software) setup_software ;;
     setup-repositories) mkdir -p "$ISAAC_ROOT" && setup_repositories ;;
     apply-training-patches) apply_training_patches ;;
-    apply-warp-patch) patch_warp_extension ;;
     doctor) doctor ;;
     show-config) show_config ;;
     self-test) self_test ;;
