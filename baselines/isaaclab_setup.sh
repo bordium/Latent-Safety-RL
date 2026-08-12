@@ -1,15 +1,17 @@
 #!/usr/bin/env bash
-# Install and pin Isaac Sim + Isaac Lab, standalone -- no dependency on any
-# particular baseline (gr00t, ppo, ...). Baselines that need Isaac Lab should
-# document this script as a prerequisite and layer their own Python packages
-# into the same Conda environment afterward.
+# Install a generic, reusable Isaac Lab base environment -- no dependency on
+# any particular baseline (gr00t, ppo, ...). Baselines that need Isaac Lab
+# should document this script as a prerequisite; ones with no conflicting
+# package pins can activate this Conda environment directly, and ones that
+# need different pins (e.g. gr00t needs a different Torch build) should clone
+# it into their own environment rather than installing into this one.
 #
 # Tested target:
 #   Ubuntu 22.04/24.04 x86_64, Python 3.11, CUDA Toolkit 12.8
-#   Isaac Sim 5.0.0, Isaac Lab v2.2.0
+#   isaaclab[isaacsim,all] 2.3.2.post1 (pip), Torch 2.7.0/cu128
 #
-# Idempotent: rerunning preserves the existing repository and environment,
-# verifies the pinned revision, and only installs what's missing.
+# Idempotent: rerunning preserves the existing environment and only installs
+# what's missing.
 
 set -Eeuo pipefail
 
@@ -19,16 +21,18 @@ SCRIPT_DIR="$(dirname "$SCRIPT_PATH")"
 
 PROJECT_ROOT="$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel 2>/dev/null || printf '%s' "$SCRIPT_DIR")"
 
-CONDA_ENV="${CONDA_ENV:-isaac-eval}"
+# The base environment baselines share; each baseline that needs its own
+# package pins (e.g. gr00t) clones this rather than installing into it
+# directly, so it stays reusable and unmodified.
+CONDA_ENV="${CONDA_ENV:-env_isaaclab}"
 CONDA_ROOT="${CONDA_ROOT:-$PROJECT_ROOT/conda}"
 MINICONDA_URL="${MINICONDA_URL:-https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh}"
 
-ISAAC_ROOT="${ISAAC_ROOT:-$PROJECT_ROOT/isaac}"
-ISAACLAB_DIR="${ISAACLAB_DIR:-$ISAAC_ROOT/IsaacLab}"
-
-ISAACLAB_URL="${ISAACLAB_URL:-https://github.com/isaac-sim/IsaacLab.git}"
-ISAACLAB_REF="${ISAACLAB_REF:-v2.2.0}"
-ISAACLAB_COMMIT="${ISAACLAB_COMMIT:-46dff135f44683f031edf346e544fcfd8456b2bb}"
+ISAACLAB_VERSION="${ISAACLAB_VERSION:-2.3.2.post1}"
+TORCH_VERSION="${TORCH_VERSION:-2.7.0}"
+TORCHVISION_VERSION="${TORCHVISION_VERSION:-0.22.0}"
+TORCH_INDEX_URL="${TORCH_INDEX_URL:-https://download.pytorch.org/whl/cu128}"
+RL_GAMES_GIT="${RL_GAMES_GIT:-git+https://github.com/isaac-sim/rl_games.git@python3.11}"
 
 CUDA_VERSION="${CUDA_VERSION:-12.8}"
 CUDA_HOME="${CUDA_HOME:-/usr/local/cuda-12.8}"
@@ -63,6 +67,12 @@ export CUDA_HOME
 export PATH="$CUDA_HOME/bin:$PATH"
 export LD_LIBRARY_PATH="$CUDA_HOME/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 
+# The first time `isaacsim` is imported, it interactively prompts to accept
+# the NVIDIA Omniverse License Agreement, which hangs a non-interactive
+# script. Running this script is an implicit agreement to that EULA
+# (https://docs.omniverse.nvidia.com/platform/latest/common/NVIDIA_Omniverse_License_Agreement.html).
+export OMNI_KIT_ACCEPT_EULA="${OMNI_KIT_ACCEPT_EULA:-YES}"
+
 if [[ -z "${VK_ICD_FILENAMES:-}" ]]; then
   if [[ -f /usr/share/vulkan/icd.d/nvidia_icd.json ]]; then
     export VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/nvidia_icd.json
@@ -78,15 +88,14 @@ usage() {
 Usage: $SCRIPT_NAME COMMAND
 
 Fresh-computer setup:
-  bootstrap           Install system packages, NVIDIA/CUDA, Conda, Isaac Lab,
-                      and the Isaac Sim Python stack
-  setup-system        Install/check Ubuntu packages, driver, CUDA 12.8
-  setup-software       Set up Conda, clone/pin Isaac Lab, install Isaac Sim
-  setup-repositories   Just clone/pin Isaac Lab (no Conda/Python install)
-  apply-warp-patch     Reapply the omni.warp/omni.warp.core R580+ driver fix
+  bootstrap        Install system packages, NVIDIA/CUDA, Conda, and the
+                   Isaac Lab/Isaac Sim Python stack
+  setup-system     Install/check Ubuntu packages, driver, CUDA 12.8
+  setup-software    Set up Conda and install the Isaac Lab Python stack
+  apply-warp-patch  Reapply the omni.warp/omni.warp.core R580+ driver fix
 
 Verify:
-  doctor        Check OS, pinned repo, packages, CUDA, and GPU access
+  doctor        Check OS, packages, CUDA, and GPU access
   self-test     Check this Bash file without requiring Isaac Lab
   show-config   Print resolved paths, versions, and settings
 
@@ -101,15 +110,18 @@ Fresh Ubuntu example:
 Useful overrides:
   AUTO_INSTALL_DRIVER=1     Allow installation of the recommended NVIDIA driver
                             (default: 0; check only, never install automatically)
-  ISAAC_ROOT=/abs/path CONDA_ROOT=/abs/path CONDA_ENV=another-env
-                            (default: project-local ./isaac and ./conda)
+  CONDA_ROOT=/abs/path CONDA_ENV=another-env
+                            (default: project-local ./conda and env_isaaclab)
+  ISAACLAB_VERSION=2.3.2.post1 TORCH_VERSION=2.7.0 TORCHVISION_VERSION=0.22.0
 
 Notes:
   * A newly installed NVIDIA driver requires a reboot. Re-run bootstrap after it.
-  * Everything installed by this script lives under \$ISAAC_ROOT and \$CONDA_ROOT,
-    which default to directories at the repo root.
-  * Baselines (gr00t, ppo, ...) share this same Conda environment and Isaac Lab
-    checkout; they layer their own Python packages on top.
+  * Everything installed by this script lives under \$CONDA_ROOT, which
+    defaults to a directory at the repo root.
+  * Baselines with no conflicting package pins can activate $CONDA_ENV
+    directly; ones with conflicting pins (e.g. gr00t, which needs a
+    different Torch build) should \`conda create --clone $CONDA_ENV\` into
+    their own environment, so installing them never mutates this shared base.
 EOF
 }
 
@@ -132,10 +144,6 @@ require_command() {
 
 require_dir() {
   [[ -d "$1" ]] || die "Directory not found: $1"
-}
-
-require_file() {
-  [[ -f "$1" ]] || die "File not found: $1"
 }
 
 assert_supported_host() {
@@ -277,7 +285,7 @@ ensure_conda() {
   source "$CONDA_ROOT/etc/profile.d/conda.sh"
   if ! conda env list | awk 'NF && $1 !~ /^#/ {print $1}' | grep -Fxq "$CONDA_ENV"; then
     info "Creating Conda environment $CONDA_ENV with Python 3.11"
-    conda create -y -n "$CONDA_ENV" --override-channels -c conda-forge python=3.11 pip
+    conda create -y -n "$CONDA_ENV" python=3.11
   fi
   conda activate "$CONDA_ENV"
   [[ "$(python -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')" == "3.11" ]] ||
@@ -293,6 +301,8 @@ activate_conda() {
   [[ -n "$conda_base" ]] || die "Conda was not found at $CONDA_ROOT. Run './$SCRIPT_NAME setup-software' first."
   # shellcheck disable=SC1091
   source "$conda_base/etc/profile.d/conda.sh"
+  conda env list | awk 'NF && $1 !~ /^#/ {print $1}' | grep -Fxq "$CONDA_ENV" ||
+    die "Conda environment '$CONDA_ENV' not found. Run './$SCRIPT_NAME setup-software' first."
   conda activate "$CONDA_ENV"
   # Isaac Sim's bundled extensions need a newer libstdc++ (CXXABI_1.3.15+)
   # than Ubuntu 22.04 ships. Conda's own copy has it; put it ahead of the
@@ -300,103 +310,46 @@ activate_conda() {
   export LD_LIBRARY_PATH="$CONDA_PREFIX/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 }
 
-repo_is_dirty() {
-  [[ -n "$(git -C "$1" status --porcelain --untracked-files=normal)" ]]
-}
-
-clone_and_pin() {
-  local url="$1" destination="$2" ref="$3" commit="$4" label="$5"
-  local freshly_cloned=0
-
-  if [[ ! -d "$destination/.git" ]]; then
-    [[ ! -e "$destination" || -z "$(find "$destination" -mindepth 1 -maxdepth 1 -print -quit 2>/dev/null)" ]] ||
-      die "$destination exists and is not an empty Git repository."
-    info "Cloning $label"
-    git clone --filter=blob:none --no-checkout "$url" "$destination"
-    freshly_cloned=1
-  fi
-
-  local current worktree_populated=1
-  current="$(git -C "$destination" rev-parse HEAD 2>/dev/null || true)"
-  [[ -n "$(find "$destination" -mindepth 1 -maxdepth 1 ! -name .git -print -quit 2>/dev/null)" ]] ||
-    worktree_populated=0
-
-  # A --no-checkout clone can leave HEAD already equal to $commit (e.g. when
-  # $ref is the tip of the default branch) despite having checked out no
-  # files at all -- guard on the working tree, not just the commit hash.
-  if [[ "$current" != "$commit" || "$worktree_populated" != "1" ]]; then
-    # A clone we just made ourselves has an empty index against a populated
-    # HEAD, which `git status` reports as every tracked file being deleted.
-    # That's the normal --no-checkout state, not real local changes, so only
-    # run the dirty check against a repo that already existed beforehand.
-    if [[ "$freshly_cloned" != "1" && "$current" != "$commit" ]] && repo_is_dirty "$destination"; then
-      die "$label has local changes at $destination; preserve them before switching to $commit."
-    fi
-    info "Pinning $label to $ref"
-    git -C "$destination" fetch --depth 1 origin "$ref"
-    git -C "$destination" checkout --detach "$commit"
-  fi
-
-  current="$(git -C "$destination" rev-parse HEAD)"
-  [[ "$current" == "$commit" ]] || die "$label resolved to $current instead of $commit."
-  printf '%s: %s\n' "$label" "$current"
-}
-
-setup_repositories() {
-  require_command git
-  mkdir -p "$ISAAC_ROOT"
-  clone_and_pin "$ISAACLAB_URL" "$ISAACLAB_DIR" "$ISAACLAB_REF" "$ISAACLAB_COMMIT" "Isaac Lab"
-}
-
 install_isaac_python_stack() {
   activate_conda
-  require_dir "$ISAACLAB_DIR"
   cuda_128_is_installed || die "CUDA Toolkit $CUDA_VERSION is required."
 
-  info "Installing Isaac Sim 5.0.0 and Isaac Lab v2.2.0"
-  python -m pip install --upgrade pip wheel ninja "setuptools==80.9.0"
+  info "Installing Isaac Lab $ISAACLAB_VERSION (bundles Isaac Sim) and rl_games"
+  python -m pip install --upgrade pip
   python -m pip install \
-    torch==2.7.0 torchvision==0.22.0 \
-    --index-url https://download.pytorch.org/whl/cu128
-  python -m pip install \
-    "isaacsim[all,extscache]==5.0.0" \
+    "isaaclab[isaacsim,all]==$ISAACLAB_VERSION" \
     --extra-index-url https://pypi.nvidia.com
-  # Isaac Lab's setup.py depends on unpinned "warp-lang"; pin it here to the
-  # last release before warp-lang 1.16.0 started requiring a CUDA 13 pip
-  # stack, which conflicts with the CUDA 12.8 toolkit/torch cu124/cu128
-  # wheels this stack installs everywhere else.
-  python -m pip install "warp-lang==1.15.0"
-  (
-    cd "$ISAACLAB_DIR"
-    ./isaaclab.sh --install none
-  )
-  # isaaclab.sh installs each source/* extension via `find -exec`, which
-  # swallows a failed `pip install` for any one of them without propagating
-  # it back here -- verify the core package actually landed.
-  python -c "import isaaclab" ||
-    die "isaaclab.sh --install did not install the core 'isaaclab' package; rerun setup-software."
+  # isaaclab[isaacsim,all] may pull in a different Torch build than the one
+  # this stack is validated against; reassert it explicitly.
+  python -m pip install -U \
+    "torch==$TORCH_VERSION" "torchvision==$TORCHVISION_VERSION" \
+    --index-url "$TORCH_INDEX_URL"
+  python -m pip install "$RL_GAMES_GIT"
 
   info "Installed core package versions"
   python - <<'PY'
 import torch
 import torchvision
+import isaaclab
 
 print("Torch:", torch.__version__)
 print("Torch CUDA runtime:", torch.version.cuda)
 print("Torchvision:", torchvision.__version__)
+print("Isaac Lab:", getattr(isaaclab, "__version__", "unknown"))
 PY
 }
 
-# Isaac Sim 5.0.0 bundles the omni.warp/omni.warp.core Kit extension at
-# version 1.7.1, whose CUDA driver-entry-point lookup for cuDeviceGetUuid
-# fails against NVIDIA R580+ drivers ("Warp CUDA error 36: API call is not
-# supported in the installed CUDA driver"). Fixed upstream in Warp v1.8.1;
-# NVIDIA has not backported it into an Isaac Sim 5.0.0 point release, and no
+# Isaac Sim bundles the omni.warp/omni.warp.core Kit extension at version
+# 1.7.1 in some releases, whose CUDA driver-entry-point lookup for
+# cuDeviceGetUuid fails against NVIDIA R580+ drivers ("Warp CUDA error 36:
+# API call is not supported in the installed CUDA driver"). Fixed upstream in
+# Warp v1.8.1; not every Isaac Sim point release bundles the fix, and no
 # standalone extension package exists outside of a full Isaac Sim release --
 # see https://github.com/isaac-sim/IsaacLab/issues/3477. Isaac Sim 5.1.0
 # bundles the fixed 1.8.2 build, so pull just those two extension folders out
 # of its extscache wheel and drop them in over the broken 1.7.1 ones, leaving
-# everything else (Isaac Sim itself, Isaac Lab) at their tested pins.
+# everything else at its installed pin. Skipped entirely if the broken 1.7.1
+# build isn't present (e.g. a newer Isaac Sim already ships the fix).
 patch_warp_extension() {
   activate_conda
   local extscache
@@ -406,6 +359,10 @@ patch_warp_extension() {
   if [[ -d "$extscache/omni.warp-$WARP_FIX_VERSION" &&
         -d "$extscache/omni.warp.core-$WARP_FIX_VERSION+lx64" ]]; then
     printf 'omni.warp/omni.warp.core %s already installed at %s.\n' "$WARP_FIX_VERSION" "$extscache"
+    return
+  fi
+  if ! compgen -G "$extscache/omni.warp-1.7.*" >/dev/null; then
+    printf 'omni.warp 1.7.x (the broken build) not present at %s; skipping the R580+ patch.\n' "$extscache"
     return
   fi
 
@@ -454,7 +411,6 @@ setup_software() {
   ensure_nvidia_driver
   ensure_cuda_toolkit
   ensure_conda
-  setup_repositories
   install_isaac_python_stack
   patch_warp_extension
   info "Isaac Lab software setup completed"
@@ -472,10 +428,9 @@ show_config() {
 PROJECT_ROOT=$PROJECT_ROOT
 CONDA_ENV=$CONDA_ENV
 CONDA_ROOT=$CONDA_ROOT
-ISAAC_ROOT=$ISAAC_ROOT
-ISAACLAB_DIR=$ISAACLAB_DIR
-ISAACLAB_REF=$ISAACLAB_REF
-ISAACLAB_COMMIT=$ISAACLAB_COMMIT
+ISAACLAB_VERSION=$ISAACLAB_VERSION
+TORCH_VERSION=$TORCH_VERSION
+TORCHVISION_VERSION=$TORCHVISION_VERSION
 CUDA_HOME=$CUDA_HOME
 CUDA_VERSION=$CUDA_VERSION
 WARP_FIX_VERSION=$WARP_FIX_VERSION
@@ -484,28 +439,10 @@ VK_ICD_FILENAMES=$VK_ICD_FILENAMES
 EOF
 }
 
-check_repo_commit() {
-  local directory="$1" expected="$2" label="$3"
-  if [[ ! -d "$directory/.git" && ! -f "$directory/.git" ]]; then
-    printf 'MISSING repository: %s (%s)\n' "$label" "$directory" >&2
-    return 1
-  fi
-  local actual
-  actual="$(git -C "$directory" rev-parse HEAD 2>/dev/null || true)"
-  if [[ "$actual" != "$expected" ]]; then
-    printf 'WRONG revision: %s is %s; expected %s\n' "$label" "$actual" "$expected" >&2
-    return 1
-  fi
-  printf 'OK revision: %s %s\n' "$label" "$actual"
-}
-
 doctor() {
   local failures=0
   assert_supported_host || failures=$((failures + 1))
   activate_conda
-
-  check_repo_commit "$ISAACLAB_DIR" "$ISAACLAB_COMMIT" "Isaac Lab" || failures=$((failures + 1))
-  require_file "$ISAACLAB_DIR/isaaclab.sh"
 
   printf '\nNVIDIA driver and CUDA Toolkit:\n'
   if driver_is_usable; then
@@ -531,15 +468,22 @@ doctor() {
 import importlib
 import sys
 
-modules = ("torch", "pinocchio", "pink", "isaaclab", "isaacsim")
+required = ("torch", "isaaclab", "isaacsim", "rl_games")
+optional = ("pinocchio", "pink")
 failed = []
-for name in modules:
+for name in required:
     try:
         importlib.import_module(name)
         print(f"OK import: {name}")
     except Exception as exc:
         failed.append(name)
         print(f"FAILED import: {name}: {exc}", file=sys.stderr)
+for name in optional:
+    try:
+        importlib.import_module(name)
+        print(f"OK import: {name}")
+    except Exception as exc:
+        print(f"NOTE optional import unavailable: {name}: {exc}")
 
 import torch
 print(f"Python: {sys.version.split()[0]}")
@@ -560,9 +504,11 @@ PY
   if [[ -d "$extscache/omni.warp-$WARP_FIX_VERSION" &&
         -d "$extscache/omni.warp.core-$WARP_FIX_VERSION+lx64" ]]; then
     printf 'OK patch: omni.warp/omni.warp.core %s (R580+ driver fix)\n' "$WARP_FIX_VERSION"
-  else
+  elif compgen -G "$extscache/omni.warp-1.7.*" >/dev/null 2>&1; then
     printf 'FAILED patch: omni.warp/omni.warp.core %s not found at %s\n' "$WARP_FIX_VERSION" "$extscache" >&2
     failures=$((failures + 1))
+  else
+    printf 'OK patch: omni.warp 1.7.x (the broken build) not present; patch not needed\n'
   fi
 
   if (( failures > 0 )); then
@@ -573,7 +519,6 @@ PY
 
 self_test() {
   bash -n "$SCRIPT_PATH"
-  [[ "$ISAACLAB_COMMIT" =~ ^[0-9a-f]{40}$ ]]
   [[ "$CUDA_VERSION" == "12.8" ]]
   [[ "$AUTO_INSTALL_DRIVER" =~ ^[01]$ ]]
   printf 'Bash syntax and pinned-configuration checks passed.\n'
@@ -590,7 +535,6 @@ main() {
     bootstrap) bootstrap ;;
     setup-system) setup_system ;;
     setup-software) setup_software ;;
-    setup-repositories) mkdir -p "$ISAAC_ROOT" && setup_repositories ;;
     apply-warp-patch) patch_warp_extension ;;
     doctor) doctor ;;
     show-config) show_config ;;

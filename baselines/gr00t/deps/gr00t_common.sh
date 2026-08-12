@@ -15,11 +15,13 @@ _gr00t_common_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(git -C "$_gr00t_common_dir" rev-parse --show-toplevel 2>/dev/null || printf '%s' "$_gr00t_common_dir")"
 unset _gr00t_common_dir
 
-CONDA_ENV="${CONDA_ENV:-isaac-eval}"
+# isaac-gr00t is a clone of ../isaaclab_setup.sh's base "env_isaaclab"
+# environment (see gr00t_setup.sh's ensure_gr00t_conda_env), so GR00T's own
+# package pins never leak into the shared base other baselines (ppo, ...) use.
+CONDA_ENV="${CONDA_ENV:-isaac-gr00t}"
 CONDA_ROOT="${CONDA_ROOT:-$PROJECT_ROOT/conda}"
 
 ISAAC_ROOT="${ISAAC_ROOT:-$PROJECT_ROOT/isaac}"
-ISAACLAB_DIR="${ISAACLAB_DIR:-$ISAAC_ROOT/IsaacLab}"
 EVAL_REPO="${EVAL_REPO:-$ISAAC_ROOT/IsaacLabEvalTasks}"
 GROOT_DIR="${GROOT_DIR:-$EVAL_REPO/submodules/Isaac-GR00T}"
 
@@ -50,6 +52,12 @@ export PYTORCH_CUDA_ALLOC_CONF="${PYTORCH_CUDA_ALLOC_CONF:-expandable_segments:T
 export __NV_PRIME_RENDER_OFFLOAD="${__NV_PRIME_RENDER_OFFLOAD:-1}"
 export __VK_LAYER_NV_optimus="${__VK_LAYER_NV_optimus:-NVIDIA_only}"
 export __GLX_VENDOR_LIBRARY_NAME="${__GLX_VENDOR_LIBRARY_NAME:-nvidia}"
+
+# The first time `isaacsim` is imported, it interactively prompts to accept
+# the NVIDIA Omniverse License Agreement, which hangs a non-interactive
+# script. Running this script is an implicit agreement to that EULA
+# (https://docs.omniverse.nvidia.com/platform/latest/common/NVIDIA_Omniverse_License_Agreement.html).
+export OMNI_KIT_ACCEPT_EULA="${OMNI_KIT_ACCEPT_EULA:-YES}"
 
 if [[ -z "${VK_ICD_FILENAMES:-}" ]]; then
   if [[ -f /usr/share/vulkan/icd.d/nvidia_icd.json ]]; then
@@ -115,6 +123,8 @@ activate_conda() {
   [[ -n "$conda_base" ]] || die "Conda was not found at $CONDA_ROOT. Run '../isaaclab_setup.sh setup-software' first."
   # shellcheck disable=SC1091
   source "$conda_base/etc/profile.d/conda.sh"
+  conda env list | awk 'NF && $1 !~ /^#/ {print $1}' | grep -Fxq "$CONDA_ENV" ||
+    die "Conda environment '$CONDA_ENV' not found. Run './gr00t_setup.sh setup-software' first."
   conda activate "$CONDA_ENV"
   # Isaac Sim's bundled extensions (e.g. omni.kit.test's coverage/sqlite3
   # chain) need a newer libstdc++ (CXXABI_1.3.15+) than Ubuntu 22.04 ships.

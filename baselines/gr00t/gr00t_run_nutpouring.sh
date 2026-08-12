@@ -24,8 +24,6 @@ Usage: $SCRIPT_NAME COMMAND
                         Hugging Face (resumable; skipped if already present)
   download-dataset      Download the Nut Pouring demonstration dataset
                         (only needed for offline-eval)
-  sim                   Launch the basic Isaac Lab GUI simulation
-  sim-headless          Launch the basic Isaac Lab simulation without a GUI
   eval-smoke            Run GR00T Nut Pouring (30 inference cycles, 1 rollout)
   eval-full              Run GR00T Nut Pouring (1000 cycles, 20 rollouts)
   offline-eval          Compare policy actions with the demonstration dataset
@@ -71,19 +69,6 @@ NUM_FEEDBACK_ACTIONS=$NUM_FEEDBACK_ACTIONS
 SEED=$SEED
 VK_ICD_FILENAMES=$VK_ICD_FILENAMES
 EOF
-}
-
-run_sim() {
-  local headless="$1"
-  activate_conda
-  require_file "$ISAACLAB_DIR/isaaclab.sh"
-  require_file "$ISAACLAB_DIR/scripts/tutorials/00_sim/create_empty.py"
-  cd "$ISAACLAB_DIR"
-  if [[ "$headless" == "1" ]]; then
-    exec ./isaaclab.sh -p scripts/tutorials/00_sim/create_empty.py --headless
-  else
-    exec ./isaaclab.sh -p scripts/tutorials/00_sim/create_empty.py
-  fi
 }
 
 run_eval() {
@@ -153,8 +138,6 @@ main() {
   case "${1:-}" in
     download-checkpoint) download_checkpoint ;;
     download-dataset) download_dataset ;;
-    sim) run_sim 0 ;;
-    sim-headless) run_sim 1 ;;
     eval-smoke) run_eval 30 1 ;;
     eval-full) run_eval 1000 20 ;;
     offline-eval) offline_eval ;;

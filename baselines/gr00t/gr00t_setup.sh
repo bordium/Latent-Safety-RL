@@ -34,6 +34,12 @@ EVAL_REPO_COMMIT="${EVAL_REPO_COMMIT:-460f2878bdcb4db2d21913db789174fb316b73e2}"
 GROOT_URL="${GROOT_URL:-https://github.com/NVIDIA/Isaac-GR00T.git}"
 GROOT_COMMIT="${GROOT_COMMIT:-755876a9afdb41ca6eb6383b36f4a0adb085c73f}"
 
+# ../isaaclab_setup.sh's base environment. GR00T needs a different Torch
+# build than that shared base, so rather than installing into it directly
+# (which would mutate it out from under other baselines, e.g. ppo), this
+# script clones it into $CONDA_ENV (isaac-gr00t) and installs there instead.
+BASE_CONDA_ENV="${BASE_CONDA_ENV:-env_isaaclab}"
+
 usage() {
   cat <<EOF
 Usage: $SCRIPT_NAME COMMAND
@@ -42,11 +48,12 @@ Prerequisite (run once, shared across baselines):
   ../isaaclab_setup.sh bootstrap
 
 Fresh-computer setup:
-  bootstrap                 Clone/pin repos, install GR00T's Python
-                            dependencies, and apply compatibility patches
+  bootstrap                 Clone the base Conda env into isaac-gr00t, clone/pin
+                            repos, install GR00T's Python dependencies, and
+                            apply compatibility patches
   setup-software             Same as bootstrap (kept for symmetry)
   setup-repositories         Just clone/pin IsaacLabEvalTasks and the GR00T
-                            submodule (no Python install)
+                            submodule (no Conda/Python install)
   apply-training-patches    Reapply the two RTX 4060 training compatibility fixes
 
 Verify:
@@ -65,9 +72,13 @@ Fresh Ubuntu example:
   ./$SCRIPT_NAME doctor
 
 Useful overrides:
-  ISAAC_ROOT=/abs/path CONDA_ROOT=/abs/path CONDA_ENV=another-env
+  ISAAC_ROOT=/abs/path CONDA_ROOT=/abs/path
                             (default: project-local ./isaac and ./conda,
                             shared with ../isaaclab_setup.sh)
+  CONDA_ENV=another-env       Name of GR00T's own environment (default:
+                            isaac-gr00t)
+  BASE_CONDA_ENV=another-env  Name of the base environment to clone from
+                            (default: env_isaaclab, see ../isaaclab_setup.sh)
 
 Notes:
   * Everything installed by this script lives under \$ISAAC_ROOT and \$CONDA_ROOT,
@@ -126,14 +137,48 @@ clone_and_pin() {
   printf '%s: %s\n' "$label" "$current"
 }
 
-require_isaaclab() {
-  [[ -f "$ISAACLAB_DIR/isaaclab.sh" ]] ||
-    die "Isaac Lab not found at $ISAACLAB_DIR. Run '../isaaclab_setup.sh bootstrap' first."
+# Creates $CONDA_ENV (isaac-gr00t) by cloning $BASE_CONDA_ENV (env_isaaclab)
+# the first time, then activates it. A clone, not a fresh env, so GR00T
+# doesn't have to reinstall Isaac Sim/Isaac Lab and their multi-GB extension
+# cache; a clone, not installing into the base directly, so GR00T's own
+# Torch pin never mutates the environment other baselines share.
+ensure_gr00t_conda_env() {
+  local conda_base=""
+  conda_base="$(find_conda_base 2>/dev/null || true)"
+  [[ -n "$conda_base" ]] || die "Conda was not found at $CONDA_ROOT. Run '../isaaclab_setup.sh setup-software' first."
+  # shellcheck disable=SC1091
+  source "$conda_base/etc/profile.d/conda.sh"
+
+  if conda env list | awk 'NF && $1 !~ /^#/ {print $1}' | grep -Fxq "$CONDA_ENV"; then
+    conda activate "$CONDA_ENV"
+  else
+    conda env list | awk 'NF && $1 !~ /^#/ {print $1}' | grep -Fxq "$BASE_CONDA_ENV" ||
+      die "Conda environment '$BASE_CONDA_ENV' not found. Run '../isaaclab_setup.sh setup-software' first."
+    info "Cloning Conda environment $BASE_CONDA_ENV into $CONDA_ENV for GR00T"
+    conda create -y -n "$CONDA_ENV" --clone "$BASE_CONDA_ENV"
+    conda activate "$CONDA_ENV"
+    # `conda create --clone` of a pip-managed env can leave pip's own files
+    # inconsistent (e.g. two dist-info dirs for different versions, one
+    # missing symbols the other's modules import) -- self-heal via Python's
+    # bundled ensurepip, which doesn't depend on the (possibly broken)
+    # existing pip at all.
+    if ! python -m pip --version >/dev/null 2>&1; then
+      warn "pip is broken after cloning $BASE_CONDA_ENV; reinstalling it via ensurepip"
+      local site_packages
+      site_packages="$(python -c 'import sysconfig; print(sysconfig.get_path("purelib"))')"
+      rm -rf "$site_packages"/pip "$site_packages"/pip-*.dist-info
+      python -m ensurepip --upgrade
+      python -m pip install --upgrade pip
+    fi
+  fi
+  # Isaac Sim's bundled extensions need a newer libstdc++ (CXXABI_1.3.15+)
+  # than Ubuntu 22.04 ships. Conda's own copy has it; put it ahead of the
+  # system one so the linker finds it first.
+  export LD_LIBRARY_PATH="$CONDA_PREFIX/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 }
 
 setup_repositories() {
   require_command git
-  require_isaaclab
   mkdir -p "$ISAAC_ROOT"
   clone_and_pin "$EVAL_REPO_URL" "$EVAL_REPO" "$EVAL_REPO_REF" "$EVAL_REPO_COMMIT" "IsaacLabEvalTasks"
 
@@ -160,7 +205,6 @@ setup_repositories() {
 
 install_python_stack() {
   activate_conda
-  require_isaaclab
   require_dir "$GROOT_DIR"
   require_dir "$EVAL_REPO"
   cuda_128_is_installed || die "CUDA Toolkit $CUDA_VERSION is required to build FlashAttention."
@@ -187,6 +231,11 @@ install_python_stack() {
     "hidapi==0.14.0.post2" \
     "lxml>=5.2.2" \
     "trimesh>=4.4.0"
+  # evaluate_gn1.py imports pinocchio/pink directly for GR1 IK/joint
+  # remapping. The old git-checkout install of Isaac Lab pulled these in
+  # transitively; the isaaclab[isaacsim,all] pip package does not, so pin
+  # them here explicitly.
+  python -m pip install "pin==2.7.0" "pin-pink==3.1.0"
   # flatdict's setup.py needs pkg_resources, which newer setuptools no longer
   # ships; --no-build-isolation makes its build use the pin above instead of
   # pip fetching the latest setuptools into an isolated build env.
@@ -265,7 +314,7 @@ PY
 
 setup_software() {
   assert_supported_host
-  require_isaaclab
+  ensure_gr00t_conda_env
   setup_repositories
   install_python_stack
   apply_training_patches
@@ -283,9 +332,9 @@ show_config() {
   cat <<EOF
 PROJECT_ROOT=$PROJECT_ROOT
 CONDA_ENV=$CONDA_ENV
+BASE_CONDA_ENV=$BASE_CONDA_ENV
 CONDA_ROOT=$CONDA_ROOT
 ISAAC_ROOT=$ISAAC_ROOT
-ISAACLAB_DIR=$ISAACLAB_DIR
 EVAL_REPO=$EVAL_REPO
 EVAL_REPO_COMMIT=$EVAL_REPO_COMMIT
 GROOT_DIR=$GROOT_DIR
@@ -316,10 +365,13 @@ doctor() {
   assert_supported_host || failures=$((failures + 1))
   activate_conda
 
-  if [[ -f "$ISAACLAB_DIR/isaaclab.sh" ]]; then
-    printf 'OK Isaac Lab present at: %s (run ../isaaclab_setup.sh doctor for full detail)\n' "$ISAACLAB_DIR"
+  local base_conda_base=""
+  base_conda_base="$(find_conda_base 2>/dev/null || true)"
+  if [[ -n "$base_conda_base" ]] &&
+     "$base_conda_base/bin/conda" env list | awk 'NF && $1 !~ /^#/ {print $1}' | grep -Fxq "$BASE_CONDA_ENV"; then
+    printf 'OK base environment present: %s (run ../isaaclab_setup.sh doctor for full detail)\n' "$BASE_CONDA_ENV"
   else
-    printf 'FAILED: Isaac Lab not found at %s. Run ../isaaclab_setup.sh bootstrap first.\n' "$ISAACLAB_DIR" >&2
+    printf 'FAILED: base environment %s not found. Run ../isaaclab_setup.sh bootstrap first.\n' "$BASE_CONDA_ENV" >&2
     failures=$((failures + 1))
   fi
   check_repo_commit "$EVAL_REPO" "$EVAL_REPO_COMMIT" "IsaacLabEvalTasks" || failures=$((failures + 1))
@@ -331,7 +383,7 @@ doctor() {
 import importlib
 import sys
 
-modules = ("torch", "isaaclab_eval_tasks", "gr00t", "flash_attn")
+modules = ("torch", "pinocchio", "pink", "isaaclab_eval_tasks", "gr00t", "flash_attn")
 failed = []
 for name in modules:
     try:
