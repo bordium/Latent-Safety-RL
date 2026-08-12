@@ -26,6 +26,20 @@ GROOT_DIR="${GROOT_DIR:-$EVAL_REPO/submodules/Isaac-GR00T}"
 CUDA_VERSION="${CUDA_VERSION:-12.8}"
 CUDA_HOME="${CUDA_HOME:-/usr/local/cuda-12.8}"
 
+# NVIDIA's CUDA apt repo is keyed by Ubuntu release (e.g. "ubuntu2204",
+# "ubuntu2404"); resolve it once here so gr00t_setup.sh doesn't hardcode it.
+_os_release_version_id=""
+if [[ -f /etc/os-release ]]; then
+  # shellcheck disable=SC1091
+  _os_release_version_id="$(. /etc/os-release && printf '%s' "$VERSION_ID")"
+fi
+case "$_os_release_version_id" in
+  22.04) CUDA_APT_REPO_SUFFIX="${CUDA_APT_REPO_SUFFIX:-ubuntu2204}" ;;
+  24.04) CUDA_APT_REPO_SUFFIX="${CUDA_APT_REPO_SUFFIX:-ubuntu2404}" ;;
+  *) CUDA_APT_REPO_SUFFIX="${CUDA_APT_REPO_SUFFIX:-ubuntu2204}" ;;
+esac
+unset _os_release_version_id
+
 DATASETS_ROOT="${DATASETS_ROOT:-$ISAAC_ROOT/datasets/PhysicalAI-GR00T-Tuned-Tasks}"
 DATASET_PATH="${DATASET_PATH:-$DATASETS_ROOT/Nut-Pouring-task}"
 BASE_MODEL_PATH="${BASE_MODEL_PATH:-$ISAAC_ROOT/checkpoints/GR00T-N1-2B}"
@@ -92,11 +106,13 @@ assert_supported_host() {
 
   # shellcheck disable=SC1091
   source /etc/os-release
-  [[ "${ID:-}" == "ubuntu" && "${VERSION_ID:-}" == "22.04" ]] ||
-    die "This installer targets Ubuntu 22.04; detected ${PRETTY_NAME:-unknown}."
+  case "${ID:-}:${VERSION_ID:-}" in
+    ubuntu:22.04|ubuntu:24.04) ;;
+    *) die "This installer targets Ubuntu 22.04 or 24.04; detected ${PRETTY_NAME:-unknown}." ;;
+  esac
 
   if grep -qi microsoft /proc/version 2>/dev/null; then
-    die "Use native Ubuntu 22.04. Isaac Sim GUI/GR00T is not supported here through WSL."
+    die "Use native Ubuntu 22.04/24.04. Isaac Sim GUI/GR00T is not supported here through WSL."
   fi
 }
 

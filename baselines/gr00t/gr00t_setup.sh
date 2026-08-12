@@ -2,7 +2,7 @@
 # Install and pin the Isaac Lab + IsaacLabEvalTasks + Isaac GR00T stack.
 #
 # Tested target:
-#   Ubuntu 22.04 x86_64, Python 3.11, CUDA Toolkit 12.8
+#   Ubuntu 22.04/24.04 x86_64, Python 3.11, CUDA Toolkit 12.8
 #   Isaac Sim 5.0.0, Isaac Lab v2.2.0
 #   IsaacLabEvalTasks 460f2878... and its pinned Isaac-GR00T submodule
 #
@@ -37,7 +37,6 @@ GROOT_COMMIT="${GROOT_COMMIT:-755876a9afdb41ca6eb6383b36f4a0adb085c73f}"
 
 CUDA_TOOLKIT_PACKAGE="${CUDA_TOOLKIT_PACKAGE:-cuda-toolkit-12-8}"
 MIN_DRIVER_MAJOR="${MIN_DRIVER_MAJOR:-570}"
-MAX_JOBS="${MAX_JOBS:-2}"
 AUTO_INSTALL_DRIVER="${AUTO_INSTALL_DRIVER:-0}"
 
 [[ "$AUTO_INSTALL_DRIVER" =~ ^[01]$ ]] || {
@@ -58,6 +57,7 @@ Fresh-computer setup:
   setup-repositories         Just clone/pin Isaac Lab, IsaacLabEvalTasks, and
                             the GR00T submodule (no Conda/Python install)
   apply-training-patches    Reapply the two RTX 4060 training compatibility fixes
+  apply-warp-patch          Reapply the omni.warp/omni.warp.core R580+ driver fix
 
 Verify:
   doctor            Check OS, pinned repos, packages, CUDA, and GPU access
@@ -128,7 +128,9 @@ driver_is_usable() {
 
 ensure_nvidia_driver() {
   require_command lspci
-  lspci | grep -qi 'NVIDIA' || die "No NVIDIA GPU was detected by lspci."
+  local pci_devices
+  pci_devices="$(lspci)"
+  grep -qi 'NVIDIA' <<<"$pci_devices" || die "No NVIDIA GPU was detected by lspci."
 
   if driver_is_usable; then
     local driver_version driver_major
@@ -179,7 +181,7 @@ ensure_cuda_toolkit() {
   local keyring_deb
   keyring_deb="$(mktemp /tmp/cuda-keyring.XXXXXX.deb)"
   curl -fsSL \
-    https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.1-1_all.deb \
+    "https://developer.download.nvidia.com/compute/cuda/repos/$CUDA_APT_REPO_SUFFIX/x86_64/cuda-keyring_1.1-1_all.deb" \
     -o "$keyring_deb"
   "${SUDO[@]}" dpkg -i "$keyring_deb"
   rm -f "$keyring_deb"
@@ -226,14 +228,20 @@ clone_and_pin() {
     freshly_cloned=1
   fi
 
-  local current
+  local current worktree_populated=1
   current="$(git -C "$destination" rev-parse HEAD 2>/dev/null || true)"
-  if [[ "$current" != "$commit" ]]; then
+  [[ -n "$(find "$destination" -mindepth 1 -maxdepth 1 ! -name .git -print -quit 2>/dev/null)" ]] ||
+    worktree_populated=0
+
+  # A --no-checkout clone can leave HEAD already equal to $commit (e.g. when
+  # $ref is the tip of the default branch) despite having checked out no
+  # files at all -- guard on the working tree, not just the commit hash.
+  if [[ "$current" != "$commit" || "$worktree_populated" != "1" ]]; then
     # A clone we just made ourselves has an empty index against a populated
     # HEAD, which `git status` reports as every tracked file being deleted.
     # That's the normal --no-checkout state, not real local changes, so only
     # run the dirty check against a repo that already existed beforehand.
-    if [[ "$freshly_cloned" != "1" ]] && repo_is_dirty "$destination"; then
+    if [[ "$freshly_cloned" != "1" && "$current" != "$commit" ]] && repo_is_dirty "$destination"; then
       die "$label has local changes at $destination; preserve them before switching to $commit."
     fi
     info "Pinning $label to $ref"
@@ -288,28 +296,47 @@ install_python_stack() {
   python -m pip install \
     "isaacsim[all,extscache]==5.0.0" \
     --extra-index-url https://pypi.nvidia.com
+  # Isaac Lab's setup.py depends on unpinned "warp-lang"; pin it here to the
+  # last release before warp-lang 1.16.0 started requiring a CUDA 13 pip
+  # stack, which conflicts with the CUDA 12.8 toolkit/torch cu124/cu128
+  # wheels this script installs everywhere else.
+  python -m pip install "warp-lang==1.15.0"
   (
     cd "$ISAACLAB_DIR"
     ./isaaclab.sh --install none
   )
+  # isaaclab.sh installs each source/* extension via `find -exec`, which
+  # swallows a failed `pip install` for any one of them without propagating
+  # it back here -- verify the core package actually landed.
+  python -c "import isaaclab" ||
+    die "isaaclab.sh --install did not install the core 'isaaclab' package; rerun setup-software."
 
   info "Installing the pinned Isaac-GR00T stack"
-  python -m pip install \
-    torch==2.5.1 torchvision==0.20.1 \
-    --index-url https://download.pytorch.org/whl/cu124
+  # GR00T's own [base] extras pins torch==2.5.1, which predates Blackwell
+  # (sm_120) kernel support entirely -- torch.cuda ops fail outright on an
+  # RTX 50-series GPU under that build. Install [base] first for GR00T's
+  # other pinned deps, then overwrite torch/torchvision/flash-attn with the
+  # same cu128-era build Isaac Sim uses; GR00T's model code and this exact
+  # checkpoint format run fine on it despite the newer version.
   python -m pip install -e "$GROOT_DIR[base]"
-  MAX_JOBS="$MAX_JOBS" python -m pip install \
-    --no-build-isolation "flash-attn==2.7.1.post4"
+  python -m pip install \
+    torch==2.7.1 torchvision==0.22.1 \
+    --index-url https://download.pytorch.org/whl/cu128
+  python -m pip install \
+    "https://github.com/Dao-AILab/flash-attention/releases/download/v2.7.4.post1/flash_attn-2.7.4.post1+cu12torch2.7cxx11abiFALSE-cp311-cp311-linux_x86_64.whl"
 
   # These pins are part of Isaac Lab v2.2.0 and also fix the import failures
   # encountered on the working RTX 4060 installation.
   python -m pip install \
     "setuptools==80.9.0" \
-    "flatdict==4.0.1" \
     "prettytable==3.3.0" \
     "hidapi==0.14.0.post2" \
     "lxml>=5.2.2" \
     "trimesh>=4.4.0"
+  # flatdict's setup.py needs pkg_resources, which newer setuptools no longer
+  # ships; --no-build-isolation makes its build use the pin above instead of
+  # pip fetching the latest setuptools into an isolated build env.
+  python -m pip install --no-build-isolation "flatdict==4.0.1"
   python -m pip install -e "$EVAL_REPO/source/isaaclab_eval_tasks"
 
   info "Installed core package versions"
@@ -328,6 +355,65 @@ PY
     warn "pip reports the expected Isaac Sim/Isaac Lab versus GR00T Torch-version conflicts."
     warn "IsaacLabEvalTasks documents these conflicts for its GR00T integration."
   fi
+}
+
+WARP_FIX_VERSION="${WARP_FIX_VERSION:-1.8.2}"
+WARP_FIX_SOURCE_PACKAGE="${WARP_FIX_SOURCE_PACKAGE:-isaacsim-extscache-kit==5.1.0.0}"
+
+# Isaac Sim 5.0.0 bundles the omni.warp/omni.warp.core Kit extension at
+# version 1.7.1, whose CUDA driver-entry-point lookup for cuDeviceGetUuid
+# fails against NVIDIA R580+ drivers ("Warp CUDA error 36: API call is not
+# supported in the installed CUDA driver"). Fixed upstream in Warp v1.8.1;
+# NVIDIA has not backported it into an Isaac Sim 5.0.0 point release, and no
+# standalone extension package exists outside of a full Isaac Sim release --
+# see https://github.com/isaac-sim/IsaacLab/issues/3477. Isaac Sim 5.1.0
+# bundles the fixed 1.8.2 build, so pull just those two extension folders out
+# of its extscache wheel and drop them in over the broken 1.7.1 ones, leaving
+# everything else (IsaacLab, IsaacLabEvalTasks, Isaac Sim itself) at their
+# tested pins.
+patch_warp_extension() {
+  activate_conda
+  local extscache
+  extscache="$(python -c 'import isaacsim, os; print(os.path.dirname(isaacsim.__file__))')/extscache"
+  require_dir "$extscache"
+
+  if [[ -d "$extscache/omni.warp-$WARP_FIX_VERSION" &&
+        -d "$extscache/omni.warp.core-$WARP_FIX_VERSION+lx64" ]]; then
+    printf 'omni.warp/omni.warp.core %s already installed at %s.\n' "$WARP_FIX_VERSION" "$extscache"
+    return
+  fi
+
+  info "Replacing the broken omni.warp/omni.warp.core 1.7.1 Kit extension with $WARP_FIX_VERSION"
+  local tmp
+  tmp="$(mktemp -d)"
+  # shellcheck disable=SC2064
+  trap "rm -rf '$tmp'" RETURN
+
+  python -m pip download --no-deps -d "$tmp" "$WARP_FIX_SOURCE_PACKAGE" \
+    --extra-index-url https://pypi.nvidia.com
+  local whl
+  whl="$(find "$tmp" -maxdepth 1 -name '*.whl' -print -quit)"
+  [[ -n "$whl" ]] || die "Failed to download $WARP_FIX_SOURCE_PACKAGE."
+
+  (
+    cd "$tmp"
+    unzip -q "$whl" \
+      "isaacsim/extscache/omni.warp-$WARP_FIX_VERSION/*" \
+      "isaacsim/extscache/omni.warp.core-$WARP_FIX_VERSION+lx64/*"
+  )
+  require_dir "$tmp/isaacsim/extscache/omni.warp-$WARP_FIX_VERSION"
+  require_dir "$tmp/isaacsim/extscache/omni.warp.core-$WARP_FIX_VERSION+lx64"
+
+  local old
+  for old in "omni.warp-1.7.1" "omni.warp.core-1.7.1+lx64"; do
+    if [[ -e "$extscache/$old" && ! -e "$extscache/$old.bak" ]]; then
+      mv "$extscache/$old" "$extscache/$old.bak"
+    fi
+  done
+
+  cp -r "$tmp/isaacsim/extscache/omni.warp-$WARP_FIX_VERSION" "$extscache/"
+  cp -r "$tmp/isaacsim/extscache/omni.warp.core-$WARP_FIX_VERSION+lx64" "$extscache/"
+  info "Installed omni.warp/omni.warp.core $WARP_FIX_VERSION at $extscache"
 }
 
 apply_training_patches() {
@@ -396,6 +482,7 @@ setup_software() {
   ensure_conda
   setup_repositories
   install_python_stack
+  patch_warp_extension
   apply_training_patches
   mkdir -p "$ISAAC_ROOT/checkpoints" "$ISAAC_ROOT/training_runs" "$RESULTS_DIR" "$DATASETS_ROOT"
   info "Software setup completed"
@@ -511,6 +598,16 @@ PY
     failures=$((failures + 1))
   fi
 
+  local extscache
+  extscache="$(python -c 'import isaacsim, os; print(os.path.dirname(isaacsim.__file__))' 2>/dev/null)/extscache"
+  if [[ -d "$extscache/omni.warp-$WARP_FIX_VERSION" &&
+        -d "$extscache/omni.warp.core-$WARP_FIX_VERSION+lx64" ]]; then
+    printf 'OK patch: omni.warp/omni.warp.core %s (R580+ driver fix)\n' "$WARP_FIX_VERSION"
+  else
+    printf 'FAILED patch: omni.warp/omni.warp.core %s not found at %s\n' "$WARP_FIX_VERSION" "$extscache" >&2
+    failures=$((failures + 1))
+  fi
+
   local train_script="$GROOT_DIR/scripts/gr00t_finetune.py"
   local flow_head="$GROOT_DIR/gr00t/model/action_head/flow_matching_action_head.py"
   if grep -Eq 'torch_dtype[[:space:]]*=[[:space:]]*torch\.bfloat16' "$train_script"; then
@@ -568,6 +665,7 @@ main() {
     setup-software) setup_software ;;
     setup-repositories) mkdir -p "$ISAAC_ROOT" && setup_repositories ;;
     apply-training-patches) apply_training_patches ;;
+    apply-warp-patch) patch_warp_extension ;;
     doctor) doctor ;;
     show-config) show_config ;;
     self-test) self_test ;;
