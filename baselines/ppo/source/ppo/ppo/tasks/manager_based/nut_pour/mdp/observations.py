@@ -10,14 +10,12 @@ from typing import TYPE_CHECKING
 
 from isaaclab.envs.mdp import joint_pos_rel, joint_vel_rel, last_action
 from isaaclab.managers import SceneEntityCfg
-from isaaclab_tasks.manager_based.manipulation.pick_place.mdp import (
-    get_hand_state,
-    get_head_state,
-    get_left_eef_pos,
-    get_left_eef_quat,
-    get_right_eef_pos,
-    get_right_eef_quat,
-)
+from isaaclab_tasks.manager_based.manipulation.pick_place.mdp import get_eef_pos, get_eef_quat, get_robot_joint_state
+
+# GR1T2's hand joints are named "L_*"/"R_*", matching the same regex pattern
+# NutPourGR1T2BaseEnvCfg itself uses for its own "hand_joint_state" term.
+_HAND_JOINT_NAME_PATTERNS = ["R_.*", "L_.*"]
+_HEAD_JOINT_NAMES = ["head_pitch_joint", "head_roll_joint", "head_yaw_joint"]
 
 if TYPE_CHECKING:
     from isaaclab.envs import ManagerBasedRLEnv
@@ -28,7 +26,7 @@ def object_pos_rel(env: ManagerBasedRLEnv, asset_cfg: SceneEntityCfg) -> torch.T
 
     World-frame positions differ per env just from the parallel-env tiling
     offset, so this subtracts `env.scene.env_origins` the same way the
-    existing `get_left_eef_pos`/`get_right_eef_pos` helpers do for the robot.
+    existing `get_eef_pos` helper does for the robot.
     """
     asset = env.scene[asset_cfg.name]
     return asset.data.root_pos_w - env.scene.env_origins
@@ -48,12 +46,12 @@ def state_obs(env: ManagerBasedRLEnv) -> torch.Tensor:
             last_action(env),
             joint_pos_rel(env),
             joint_vel_rel(env),
-            get_left_eef_pos(env),
-            get_left_eef_quat(env),
-            get_right_eef_pos(env),
-            get_right_eef_quat(env),
-            get_hand_state(env),
-            get_head_state(env),
+            get_eef_pos(env, link_name="left_hand_roll_link"),
+            get_eef_quat(env, link_name="left_hand_roll_link"),
+            get_eef_pos(env, link_name="right_hand_roll_link"),
+            get_eef_quat(env, link_name="right_hand_roll_link"),
+            get_robot_joint_state(env, joint_names=_HAND_JOINT_NAME_PATTERNS),
+            get_robot_joint_state(env, joint_names=_HEAD_JOINT_NAMES),
             object_pos_rel(env, SceneEntityCfg("sorting_scale")),
             object_pos_rel(env, SceneEntityCfg("sorting_bowl")),
             object_pos_rel(env, SceneEntityCfg("sorting_beaker")),

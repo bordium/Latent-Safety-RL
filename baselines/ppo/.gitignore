@@ -1,3 +1,7 @@
+# IsaacLab checkout cloned by ppo_setup.sh (source for the editable installs
+# of isaaclab_tasks/isaaclab_rl/isaaclab_assets; not meant to be vendored)
+/IsaacLab/
+
 # C++
 **/cmake-build*/
 **/build*/

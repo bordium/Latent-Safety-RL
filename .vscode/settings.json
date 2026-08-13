@@ -1,0 +1,15 @@
+{
+  "files.watcherExclude": {
+    "**/conda/**": true,
+    "**/isaac/**": true,
+    "**/baselines/ppo/IsaacLab/**": true
+  },
+  "files.exclude": {
+    "**/conda": true
+  },
+  "search.exclude": {
+    "**/conda": true,
+    "**/isaac": true,
+    "**/baselines/ppo/IsaacLab": true
+  }
+}

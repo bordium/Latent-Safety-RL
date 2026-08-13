@@ -200,6 +200,21 @@ class NutPourPpoEnvCfg(NutPourGR1T2BaseEnvCfg):
     actions: ActionsCfg = ActionsCfg()
     rewards: RewardsCfg = RewardsCfg()
 
+    # NutPourGR1T2BaseEnvCfg sets this to a raw torch.Tensor. Nothing in
+    # isaaclab/isaaclab_tasks/isaaclab_rl actually reads it -- it looks like
+    # metadata for an external teleop/eval tool -- but Hydra's config
+    # serialization (used by train.py/play.py, not list_envs.py/random_agent.py)
+    # walks every attribute on the env cfg and can't serialize a raw Tensor,
+    # so it has to be neutralized here.
+    idle_action = None
+
+    # NutPourGR1T2BaseEnvCfg turns XR (VR teleop) on; `None` is core Isaac
+    # Lab's own default for "no XR device" (ManagerBasedEnvCfg.xr). We don't
+    # do XR teleop here, and XrCfg's anchor_rotation_custom_func defaults to
+    # an inline lambda that the same Hydra round-trip can't turn back into a
+    # callable after serializing it, so this has to go too.
+    xr = None
+
     def __post_init__(self) -> None:
         super().__post_init__()
 
