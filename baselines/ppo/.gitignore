@@ -62,6 +62,9 @@ _build
 **/logs/*
 **/recordings/*
 
+# collect_state_reward_dataset.py output
+/results/*
+
 # Pre-Trained Checkpoints
 /.pretrained_checkpoints/
 
