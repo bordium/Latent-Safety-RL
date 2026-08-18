@@ -1,0 +1,121 @@
+seed: 42
+
+
+# Models are instantiated using skrl's model instantiator utility
+# https://skrl.readthedocs.io/en/latest/api/utils/model_instantiators.html
+#
+# The "policy" observation group has two keys (PolicyCfg.concatenate_terms is
+# False in pick_place_env_cfg.py): "state" (a flat vector) and "vision" (the raw
+# (H, W, C) camera frame). Each gets its own branch, concatenated before the
+# final head.
+#
+# Use OBSERVATIONS["..."], not STATES["..."] -- skrl reserves "states" for a
+# separate privileged/asymmetric-critic input (self.state_space), which we do
+# not have, so it is always None; indexing into it crashes model init with
+# "'NoneType' object is not subscriptable".
+models:
+  separate: False
+  policy:  # see gaussian_model parameters
+    class: GaussianMixin
+    # Must stay False: the joint-position action space is not bounded to a
+    # fixed range, so skrl has nothing to clamp against and errors out.
+    clip_actions: False
+    clip_log_std: True
+    min_log_std: -20.0
+    max_log_std: 2.0
+    initial_log_std: 0.0
+    network:
+      - name: vision_features
+        input: permute(OBSERVATIONS["vision"], (0, 3, 1, 2))  # NHWC -> NCHW. Don't permute for JAX (expects NHWC).
+        layers:
+          - conv2d: {out_channels: 32, kernel_size: 8, stride: 4, padding: 0}
+          - conv2d: {out_channels: 64, kernel_size: 4, stride: 2, padding: 0}
+          - conv2d: {out_channels: 64, kernel_size: 3, stride: 1, padding: 0}
+          - flatten
+        activations: relu
+      - name: state_features
+        input: OBSERVATIONS["state"]
+        layers: [256]
+        activations: elu
+      - name: net
+        input: concatenate([vision_features, state_features])
+        layers: [256, 128]
+        activations: elu
+    output: ACTIONS
+  value:  # see deterministic_model parameters
+    class: DeterministicMixin
+    clip_actions: False
+    network:
+      - name: vision_features
+        input: permute(OBSERVATIONS["vision"], (0, 3, 1, 2))
+        layers:
+          - conv2d: {out_channels: 32, kernel_size: 8, stride: 4, padding: 0}
+          - conv2d: {out_channels: 64, kernel_size: 4, stride: 2, padding: 0}
+          - conv2d: {out_channels: 64, kernel_size: 3, stride: 1, padding: 0}
+          - flatten
+        activations: relu
+      - name: state_features
+        input: OBSERVATIONS["state"]
+        layers: [256]
+        activations: elu
+      - name: net
+        input: concatenate([vision_features, state_features])
+        layers: [256, 128]
+        activations: elu
+    output: ONE
+
+
+# Rollout memory
+# https://skrl.readthedocs.io/en/latest/api/memories/random.html
+memory:
+  class: RandomMemory
+  memory_size: -1  # automatically determined (same as agent:rollouts)
+
+
+# PPO agent configuration (field names are from PPO_DEFAULT_CONFIG)
+# https://skrl.readthedocs.io/en/latest/api/agents/ppo.html
+agent:
+  class: PPO
+  # Each sample carries a full camera frame, so rollout memory scales as
+  # images x num_envs x rollouts -- watch GPU memory before raising these.
+  rollouts: 24
+  learning_epochs: 5
+  mini_batches: 4
+  discount_factor: 0.99
+  lambda: 0.95
+  learning_rate: 3.0e-04
+  learning_rate_scheduler: KLAdaptiveLR
+  learning_rate_scheduler_kwargs:
+    kl_threshold: 0.008
+  # Images are already scaled/mean-centered by the "vision" obs term
+  # (normalize: True), and a single RunningStandardScaler over a dict input is
+  # not meaningful, so input preprocessing is left to the per-branch handling.
+  state_preprocessor: null
+  state_preprocessor_kwargs: null
+  value_preprocessor: RunningStandardScaler
+  value_preprocessor_kwargs: null
+  random_timesteps: 0
+  learning_starts: 0
+  grad_norm_clip: 1.0
+  ratio_clip: 0.2
+  value_clip: 0.2
+  clip_predicted_values: True
+  entropy_loss_scale: 0.001
+  value_loss_scale: 2.0
+  kl_threshold: 0.0
+  rewards_shaper_scale: 0.1
+  time_limit_bootstrap: False
+  # logging and checkpoint
+  experiment:
+    directory: "reachy2_pick_place_ppo"
+    experiment_name: ""
+    write_interval: auto
+    checkpoint_interval: auto
+
+
+# Sequential trainer
+# https://skrl.readthedocs.io/en/latest/api/trainers/sequential.html
+trainer:
+  class: SequentialTrainer
+  timesteps: 96000  # starting point; override with --max_iterations on train.py
+  environment_info: log

@@ -1,0 +1,33 @@
+{
+  "_comment": [
+    "TEMPLATE -- copy to <DATASET>/meta/modality.json and reconcile the index",
+    "ranges against your actual parquet column layout. modality.json is what",
+    "slices the flat `observation.state` / `action` arrays in each parquet row",
+    "into the named keys that reachy2_data_config.py expects; if the two",
+    "disagree, training fails on a shape mismatch.",
+    "Layout below: 7 arm joints per side + 1 gripper per side = 16 total.",
+    "Joint order matches REACHY2_ARM_GRIPPER_JOINTS in the PPO baseline's",
+    "assets/reachy2.py, so state collected from the Isaac Lab env lines up:",
+    "l_shoulder_pitch, l_shoulder_roll, l_elbow_yaw, l_elbow_pitch,",
+    "l_wrist_roll, l_wrist_pitch, l_wrist_yaw, then the r_ mirror, then",
+    "l_hand_finger, r_hand_finger."
+  ],
+  "state": {
+    "left_arm":       { "start": 0,  "end": 7 },
+    "right_arm":      { "start": 7,  "end": 14 },
+    "left_gripper":   { "start": 14, "end": 15 },
+    "right_gripper":  { "start": 15, "end": 16 }
+  },
+  "action": {
+    "left_arm":       { "start": 0,  "end": 7 },
+    "right_arm":      { "start": 7,  "end": 14 },
+    "left_gripper":   { "start": 14, "end": 15 },
+    "right_gripper":  { "start": 15, "end": 16 }
+  },
+  "video": {
+    "ego_view": { "original_key": "observation.images.ego_view" }
+  },
+  "annotation": {
+    "human.action.task_description": {}
+  }
+}
