@@ -1,0 +1,2968 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot name="reachy2" path="/home/brian/src/reachy/reachy_ws/src/reachy.urdf">
+	<material name="camblack">
+		<color rgba="0.2 0.2 0.2 1"></color>
+	</material>
+	<material name="neckwhite">
+		<color rgba="0.9 0.9 0.9 1"></color>
+	</material>
+	<link name="base_link">		<visual>
+			<origin rpy="0 0 0" xyz="0 0 -0.10749999999999998"></origin>
+			<geometry>
+				<mesh filename="reachy2_core/reachy_description/meshes/mobile_base_visual.dae"></mesh>
+			</geometry>
+		</visual>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.1633"></sphere>
+			</geometry>
+			<origin xyz="0.00407 -0.004959 1e-06" rpy="0 0 0"></origin>
+		</collision>
+		<collision>
+			<geometry>
+				<sphere radius="0.163066"></sphere>
+			</geometry>
+			<origin xyz="-0.007852 0.009571 -1e-06" rpy="0 0 0"></origin>
+		</collision>
+		<inertial>
+			<origin rpy="1.5707963267948966 0 0" xyz="0 0 0"></origin>
+			<mass value="20"></mass>
+			<inertia ixx="0.13616666666666666" ixy="0" ixz="0" iyy="0.13616666666666666" iyz="0" izz="0.256"></inertia>
+		</inertial>
+	</link>
+	<link name="drivewhl1_link">
+		<collision>
+			<geometry>
+				<sphere radius="0.106449"></sphere>
+			</geometry>
+			<origin xyz="0.0 0.0 -0.000124" rpy="0 0 0"></origin>
+		</collision>
+		<collision>
+			<geometry>
+				<sphere radius="0.105644"></sphere>
+			</geometry>
+			<origin xyz="-0.000322 2e-06 0.006977" rpy="0 0 0"></origin>
+		</collision>
+		<inertial>
+			<origin rpy="1.5707963267948966 0 0" xyz="0 0 0"></origin>
+			<mass value="0.5"></mass>
+			<inertia ixx="0.0014291666666666665" ixy="0" ixz="0" iyy="0.0014291666666666665" iyz="0" izz="0.0027562499999999996"></inertia>
+		</inertial>
+	</link>
+	<link name="drivewhl1_extra_link"></link>
+	<link name="drivewhl2_link">
+		<collision>
+			<geometry>
+				<sphere radius="0.106449"></sphere>
+			</geometry>
+			<origin xyz="0.0 0.0 -0.000124" rpy="0 0 0"></origin>
+		</collision>
+		<collision>
+			<geometry>
+				<sphere radius="0.105644"></sphere>
+			</geometry>
+			<origin xyz="-0.000322 2e-06 0.006977" rpy="0 0 0"></origin>
+		</collision>
+		<inertial>
+			<origin rpy="1.5707963267948966 0 0" xyz="0 0 0"></origin>
+			<mass value="0.5"></mass>
+			<inertia ixx="0.0014291666666666665" ixy="0" ixz="0" iyy="0.0014291666666666665" iyz="0" izz="0.0027562499999999996"></inertia>
+		</inertial>
+	</link>
+	<link name="drivewhl2_extra_link"></link>
+	<link name="drivewhl3_link">
+		<collision>
+			<geometry>
+				<sphere radius="0.106449"></sphere>
+			</geometry>
+			<origin xyz="0.0 0.0 -0.000124" rpy="0 0 0"></origin>
+		</collision>
+		<collision>
+			<geometry>
+				<sphere radius="0.105644"></sphere>
+			</geometry>
+			<origin xyz="-0.000322 2e-06 0.006977" rpy="0 0 0"></origin>
+		</collision>
+		<inertial>
+			<origin rpy="1.5707963267948966 0 0" xyz="0 0 0"></origin>
+			<mass value="0.5"></mass>
+			<inertia ixx="0.0014291666666666665" ixy="0" ixz="0" iyy="0.0014291666666666665" iyz="0" izz="0.0027562499999999996"></inertia>
+		</inertial>
+	</link>
+	<link name="drivewhl3_extra_link"></link>
+	<link name="lidar_link">
+		<inertial>
+			<origin rpy="0 0 0" xyz="0 0 0"></origin>
+			<mass value="0.125"></mass>
+			<inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"></inertia>
+		</inertial>
+		<collision>
+			<geometry>
+				<sphere radius="0.05777"></sphere>
+			</geometry>
+			<origin xyz="-2e-06 -3e-06 2e-06" rpy="0 0 0"></origin>
+		</collision>
+	</link>
+	<link name="back_bar_base">		<visual>
+			<origin rpy="0 0 0" xyz="0 0 0.2425"></origin>
+			<geometry>
+				<box size="0.04 0.04 0.485"></box>
+			</geometry>
+			<material name="reachy_grey">
+				<color rgba="0.5 0.5 0.5 1.0"></color>
+			</material>
+		</visual>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.067927"></sphere>
+			</geometry>
+			<origin xyz="-5e-06 -2e-06 0.427008" rpy="0 0 0"></origin>
+		</collision>
+		<collision>
+			<geometry>
+				<sphere radius="0.0723"></sphere>
+			</geometry>
+			<origin xyz="0.0 -4e-06 0.30313999999999997" rpy="0 0 0"></origin>
+		</collision>
+		<collision>
+			<geometry>
+				<sphere radius="0.071587"></sphere>
+			</geometry>
+			<origin xyz="5e-06 6e-06 0.17379699999999998" rpy="0 0 0"></origin>
+		</collision>
+		<collision>
+			<geometry>
+				<sphere radius="0.065866"></sphere>
+			</geometry>
+			<origin xyz="-4e-06 -3e-06 0.05556999999999998" rpy="0 0 0"></origin>
+		</collision>
+		<inertial>
+			<origin rpy="1.5707963267948966 0 1.5707963267948966" xyz="0 0 0"></origin>
+			<mass value="0.759"></mass>
+			<inertia ixx="0.00020240000000000001" ixy="0.0" ixz="0.0" iyy="0.00020240000000000001" iyz="0.0" izz="0.00020240000000000001"></inertia>
+		</inertial>
+	</link>
+	<link name="back_bar_inner">		<visual>
+			<origin rpy="0 0 0" xyz="0 0 0.2425"></origin>
+			<geometry>
+				<box size="0.03 0.03 0.485"></box>
+			</geometry>
+			<material name="reachy_grey">
+				<color rgba="0.5 0.5 0.5 1.0"></color>
+			</material>
+		</visual>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.067927"></sphere>
+			</geometry>
+			<origin xyz="-5e-06 -2e-06 0.427008" rpy="0 0 0"></origin>
+		</collision>
+		<collision>
+			<geometry>
+				<sphere radius="0.0723"></sphere>
+			</geometry>
+			<origin xyz="0.0 -4e-06 0.30313999999999997" rpy="0 0 0"></origin>
+		</collision>
+		<collision>
+			<geometry>
+				<sphere radius="0.071587"></sphere>
+			</geometry>
+			<origin xyz="5e-06 6e-06 0.17379699999999998" rpy="0 0 0"></origin>
+		</collision>
+		<collision>
+			<geometry>
+				<sphere radius="0.065866"></sphere>
+			</geometry>
+			<origin xyz="-4e-06 -3e-06 0.05556999999999998" rpy="0 0 0"></origin>
+		</collision>
+		<inertial>
+			<origin rpy="1.5707963267948966 0 1.5707963267948966" xyz="0 0 0"></origin>
+			<mass value="0.759"></mass>
+			<inertia ixx="0.00020240000000000001" ixy="0.0" ixz="0.0" iyy="0.00020240000000000001" iyz="0.0" izz="0.00020240000000000001"></inertia>
+		</inertial>
+	</link>
+	<link name="left_bar_base">		<visual>
+			<origin rpy="0 0 0" xyz="0 0 -0.2425"></origin>
+			<geometry>
+				<box size="0.04 0.04 0.485"></box>
+			</geometry>
+			<material name="reachy_grey">
+				<color rgba="0.5 0.5 0.5 1.0"></color>
+			</material>
+		</visual>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.067927"></sphere>
+			</geometry>
+			<origin xyz="-5e-06 -2e-06 -0.05799199999999999" rpy="0 0 0"></origin>
+		</collision>
+		<collision>
+			<geometry>
+				<sphere radius="0.0723"></sphere>
+			</geometry>
+			<origin xyz="0.0 -4e-06 -0.18186" rpy="0 0 0"></origin>
+		</collision>
+		<collision>
+			<geometry>
+				<sphere radius="0.071587"></sphere>
+			</geometry>
+			<origin xyz="5e-06 6e-06 -0.311203" rpy="0 0 0"></origin>
+		</collision>
+		<collision>
+			<geometry>
+				<sphere radius="0.065866"></sphere>
+			</geometry>
+			<origin xyz="-4e-06 -3e-06 -0.42943" rpy="0 0 0"></origin>
+		</collision>
+		<inertial>
+			<origin rpy="1.5707963267948966 0 1.5707963267948966" xyz="0 0 0"></origin>
+			<mass value="1.759"></mass>
+			<inertia ixx="0.0004690666666666666" ixy="0.0" ixz="0.0" iyy="0.0004690666666666666" iyz="0.0" izz="0.0004690666666666666"></inertia>
+		</inertial>
+	</link>
+	<link name="left_bar_anchor">		<visual>
+			<origin rpy="0 0 0.19088666029061982" xyz="0 0 0.015"></origin>
+			<geometry>
+				<box size="0.03 0.03 0.03"></box>
+			</geometry>
+			<material name="reachy_grey">
+				<color rgba="0.5 0.5 0.5 1.0"></color>
+			</material>
+		</visual>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.025981"></sphere>
+			</geometry>
+			<origin xyz="0.0 0.0 0.015" rpy="0 0 0"></origin>
+		</collision>
+		<inertial>
+			<origin rpy="1.5707963267948966 0 1.5707963267948966" xyz="0 0 0"></origin>
+			<mass value="1.759"></mass>
+			<inertia ixx="0.00026384999999999994" ixy="0.0" ixz="0.0" iyy="0.00026384999999999994" iyz="0.0" izz="0.00026384999999999994"></inertia>
+		</inertial>
+	</link>
+	<link name="left_bar_inner">		<visual>
+			<origin rpy="0 0 0" xyz="0 0 -0.2425"></origin>
+			<geometry>
+				<box size="0.03 0.03 0.485"></box>
+			</geometry>
+			<material name="reachy_grey">
+				<color rgba="0.5 0.5 0.5 1.0"></color>
+			</material>
+		</visual>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.067927"></sphere>
+			</geometry>
+			<origin xyz="-5e-06 -2e-06 -0.05799199999999999" rpy="0 0 0"></origin>
+		</collision>
+		<collision>
+			<geometry>
+				<sphere radius="0.0723"></sphere>
+			</geometry>
+			<origin xyz="0.0 -4e-06 -0.18186" rpy="0 0 0"></origin>
+		</collision>
+		<collision>
+			<geometry>
+				<sphere radius="0.071587"></sphere>
+			</geometry>
+			<origin xyz="5e-06 6e-06 -0.311203" rpy="0 0 0"></origin>
+		</collision>
+		<collision>
+			<geometry>
+				<sphere radius="0.065866"></sphere>
+			</geometry>
+			<origin xyz="-4e-06 -3e-06 -0.42943" rpy="0 0 0"></origin>
+		</collision>
+		<inertial>
+			<origin rpy="1.5707963267948966 0 1.5707963267948966" xyz="0 0 0"></origin>
+			<mass value="0.759"></mass>
+			<inertia ixx="0.00020240000000000001" ixy="0.0" ixz="0.0" iyy="0.00020240000000000001" iyz="0.0" izz="0.00020240000000000001"></inertia>
+		</inertial>
+	</link>
+	<link name="right_bar_base">		<visual>
+			<origin rpy="0 0 0" xyz="0 0 -0.2425"></origin>
+			<geometry>
+				<box size="0.04 0.04 0.485"></box>
+			</geometry>
+			<material name="reachy_grey">
+				<color rgba="0.5 0.5 0.5 1.0"></color>
+			</material>
+		</visual>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.067927"></sphere>
+			</geometry>
+			<origin xyz="-5e-06 -2e-06 -0.05799199999999999" rpy="0 0 0"></origin>
+		</collision>
+		<collision>
+			<geometry>
+				<sphere radius="0.0723"></sphere>
+			</geometry>
+			<origin xyz="0.0 -4e-06 -0.18186" rpy="0 0 0"></origin>
+		</collision>
+		<collision>
+			<geometry>
+				<sphere radius="0.071587"></sphere>
+			</geometry>
+			<origin xyz="5e-06 6e-06 -0.311203" rpy="0 0 0"></origin>
+		</collision>
+		<collision>
+			<geometry>
+				<sphere radius="0.065866"></sphere>
+			</geometry>
+			<origin xyz="-4e-06 -3e-06 -0.42943" rpy="0 0 0"></origin>
+		</collision>
+		<inertial>
+			<origin rpy="1.5707963267948966 0 1.5707963267948966" xyz="0 0 0"></origin>
+			<mass value="1.759"></mass>
+			<inertia ixx="0.0004690666666666666" ixy="0.0" ixz="0.0" iyy="0.0004690666666666666" iyz="0.0" izz="0.0004690666666666666"></inertia>
+		</inertial>
+	</link>
+	<link name="right_bar_anchor">		<visual>
+			<origin rpy="0 0 -0.19088666029061982" xyz="0 0 0.015"></origin>
+			<geometry>
+				<box size="0.03 0.03 0.03"></box>
+			</geometry>
+			<material name="reachy_grey">
+				<color rgba="0.5 0.5 0.5 1.0"></color>
+			</material>
+		</visual>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.025981"></sphere>
+			</geometry>
+			<origin xyz="0.0 0.0 0.015" rpy="0 0 0"></origin>
+		</collision>
+		<inertial>
+			<origin rpy="1.5707963267948966 0 1.5707963267948966" xyz="0 0 0"></origin>
+			<mass value="1.759"></mass>
+			<inertia ixx="0.00026384999999999994" ixy="0.0" ixz="0.0" iyy="0.00026384999999999994" iyz="0.0" izz="0.00026384999999999994"></inertia>
+		</inertial>
+	</link>
+	<link name="right_bar_inner">		<visual>
+			<origin rpy="0 0 0" xyz="0 0 -0.2425"></origin>
+			<geometry>
+				<box size="0.03 0.03 0.485"></box>
+			</geometry>
+			<material name="reachy_grey">
+				<color rgba="0.5 0.5 0.5 1.0"></color>
+			</material>
+		</visual>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.067927"></sphere>
+			</geometry>
+			<origin xyz="-5e-06 -2e-06 -0.05799199999999999" rpy="0 0 0"></origin>
+		</collision>
+		<collision>
+			<geometry>
+				<sphere radius="0.0723"></sphere>
+			</geometry>
+			<origin xyz="0.0 -4e-06 -0.18186" rpy="0 0 0"></origin>
+		</collision>
+		<collision>
+			<geometry>
+				<sphere radius="0.071587"></sphere>
+			</geometry>
+			<origin xyz="5e-06 6e-06 -0.311203" rpy="0 0 0"></origin>
+		</collision>
+		<collision>
+			<geometry>
+				<sphere radius="0.065866"></sphere>
+			</geometry>
+			<origin xyz="-4e-06 -3e-06 -0.42943" rpy="0 0 0"></origin>
+		</collision>
+		<inertial>
+			<origin rpy="1.5707963267948966 0 1.5707963267948966" xyz="0 0 0"></origin>
+			<mass value="0.759"></mass>
+			<inertia ixx="0.00020240000000000001" ixy="0.0" ixz="0.0" iyy="0.00020240000000000001" iyz="0.0" izz="0.00020240000000000001"></inertia>
+		</inertial>
+	</link>
+	<link name="torso">		<visual>
+			<origin rpy="0 0 0" xyz="0 0 0 "></origin>
+			<geometry>
+				<mesh filename="reachy2_core/reachy_description/meshes/torso_visual.dae"></mesh>
+			</geometry>
+		</visual>
+
+		<inertial>
+			<origin rpy="0 0 0" xyz="-0.051614 -0.000471 -0.018363"></origin>
+			<mass value="6.314"></mass>
+			<inertia ixx="0.07397673" ixy="-4.624e-4" ixz="-0.00175905" iyx="-0.00046237" iyy="0.04454533" iyz="0.00008675" izx="-0.00175905" izy="0.00008675" izz="0.05494939"></inertia>
+		</inertial>
+		<collision>
+			<geometry>
+				<sphere radius="0.198006"></sphere>
+			</geometry>
+			<origin xyz="-0.042338476225455376 0.0008332999607309276 -0.06438136587399464" rpy="0 0 0"></origin>
+		</collision>
+	</link>
+	<link name="neck_dummy_link1">
+		<inertial>
+			<mass value="0.005"></mass>
+			<origin rpy="0 0 0" xyz="0 0 0"></origin>
+			<inertia ixx="2.5416666666666668e-06" ixy="0" ixz="0" iyy="2.5416666666666668e-06" iyz="0" izz="2.9999999999999997e-06"></inertia>
+		</inertial>
+	</link>
+	<link name="neck_dummy_link2">
+		<inertial>
+			<mass value="0.005"></mass>
+			<origin rpy="0 0 0" xyz="0 0 0"></origin>
+			<inertia ixx="2.5416666666666668e-06" ixy="0" ixz="0" iyy="2.5416666666666668e-06" iyz="0" izz="2.9999999999999997e-06"></inertia>
+		</inertial>
+	</link>
+	<link name="neck_link">
+		<inertial>
+			<mass value="0.49"></mass>
+			<origin rpy="0 0 0" xyz="0 0 -0.025"></origin>
+			<inertia ixx="0.00024908333333333336" ixy="0" ixz="0" iyy="0.00024908333333333336" iyz="0" izz="0.000294"></inertia>
+		</inertial>
+	</link>
+	<link name="neck_ball_link">
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"></origin>
+			<mass value="0.001"></mass>
+			<inertia ixx="1.0e-6" ixy="1.0e-8" ixz="1.0e-8" iyy="1.0e-6" iyz="1.0e-8" izz="1.0e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="neck_base_link">
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"></origin>
+			<mass value="0.001"></mass>
+			<inertia ixx="1.0e-6" ixy="1.0e-8" ixz="1.0e-8" iyy="1.0e-6" iyz="1.0e-8" izz="1.0e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="neck_out_link">
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"></origin>
+			<mass value="0.001"></mass>
+			<inertia ixx="1.0e-6" ixy="1.0e-8" ixz="1.0e-8" iyy="1.0e-6" iyz="1.0e-8" izz="1.0e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="head">		<visual>
+			<origin rpy="0.0 0.0 0.0" xyz="0.00 0.0 0.0"></origin>
+			<geometry>
+				<mesh filename="reachy2_core/reachy_description/meshes/head_visual.dae"></mesh>
+			</geometry>
+		</visual>
+
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0116978 -0.00022144 0.0611705"></origin>
+			<mass value="0.325"></mass>
+			<inertia ixx="0.00085265" ixy="-0.00000298" ixz="0.00000932" iyx="-0.00000298" iyy="0.00063136" iyz="-0.000000039" izx="0.00000932" izy="-0.000000039" izz="0.0008951"></inertia>
+		</inertial>
+		<collision>
+			<geometry>
+				<sphere radius="0.106716"></sphere>
+			</geometry>
+			<origin xyz="-9.828121961376086e-06 0.0 -0.003837773485353562" rpy="0 0 0"></origin>
+		</collision>
+	</link>
+	<link name="head_base">
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"></origin>
+			<mass value="0.001"></mass>
+			<inertia ixx="1.0e-6" ixy="1.0e-8" ixz="1.0e-8" iyy="1.0e-6" iyz="1.0e-8" izz="1.0e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="head_tip">
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"></origin>
+			<mass value="0.001"></mass>
+			<inertia ixx="1.0e-6" ixy="1.0e-8" ixz="1.0e-8" iyy="1.0e-6" iyz="1.0e-8" izz="1.0e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="antenna_left_link">		<visual>
+			<origin rpy="0 0 0" xyz="0 0 0"></origin>
+			<geometry>
+				<mesh filename="reachy2_core/reachy_description/meshes/head_antenna_visual.dae"></mesh>
+			</geometry>
+			<material name="neckwhite"></material>
+		</visual>
+
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"></origin>
+			<mass value="0.001"></mass>
+			<inertia ixx="1.0e-6" ixy="1.0e-8" ixz="1.0e-8" iyy="1.0e-6" iyz="1.0e-8" izz="1.0e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="antenna_right_link">		<visual>
+			<origin rpy="0 0 0" xyz="0 0 0"></origin>
+			<geometry>
+				<mesh filename="reachy2_core/reachy_description/meshes/head_antenna_visual.dae"></mesh>
+			</geometry>
+			<material name="neckwhite"></material>
+		</visual>
+
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"></origin>
+			<mass value="0.001"></mass>
+			<inertia ixx="1.0e-6" ixy="1.0e-8" ixz="1.0e-8" iyy="1.0e-6" iyz="1.0e-8" izz="1.0e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="left_camera">
+		<inertial>
+			<mass value="1e-5"></mass>
+			<origin rpy="0 0 0" xyz="0 0 0"></origin>
+			<inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="left_camera_optical">
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"></origin>
+			<mass value="0.001"></mass>
+			<inertia ixx="1.0e-6" ixy="1.0e-8" ixz="1.0e-8" iyy="1.0e-6" iyz="1.0e-8" izz="1.0e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="left_camera_optical_frame">
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"></origin>
+			<mass value="0.001"></mass>
+			<inertia ixx="1.0e-6" ixy="1.0e-8" ixz="1.0e-8" iyy="1.0e-6" iyz="1.0e-8" izz="1.0e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="right_camera">
+		<inertial>
+			<mass value="1e-5"></mass>
+			<origin rpy="0 0 0" xyz="0 0 0"></origin>
+			<inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="right_camera_optical"></link>
+	<link name="right_camera_optical_frame"></link>
+	<link name="tof_camera">
+		<inertial>
+			<mass value="1e-5"></mass>
+			<origin rpy="0 0 0" xyz="0 0 0"></origin>
+			<inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="tof_camera_optical"></link>
+	<link name="tof_camera_optical_frame"></link>
+	<link name="r_shoulder_base_link">
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"></origin>
+			<mass value="0.001"></mass>
+			<inertia ixx="1.0e-6" ixy="1.0e-8" ixz="1.0e-8" iyy="1.0e-6" iyz="1.0e-8" izz="1.0e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="r_shoulder_dummy_link1">
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"></origin>
+			<mass value="0.001"></mass>
+			<inertia ixx="1.0e-6" ixy="1.0e-8" ixz="1.0e-8" iyy="1.0e-6" iyz="1.0e-8" izz="1.0e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="r_shoulder_dummy_link2">
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"></origin>
+			<mass value="0.001"></mass>
+			<inertia ixx="1.0e-6" ixy="1.0e-8" ixz="1.0e-8" iyy="1.0e-6" iyz="1.0e-8" izz="1.0e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="r_shoulder_first_link">		<visual>
+			<origin rpy="1.5707963267948966 0 0" xyz="0 0 0"></origin>
+			<geometry>
+				<sphere radius="0.045"/>
+			</geometry>
+		</visual>
+
+		<inertial>
+			<origin rpy="0 0 0" xyz="0.000096 -0.000015 -0.01777"></origin>
+			<mass value="0.487"></mass>
+			<inertia ixx="0.000577881945" ixy="-8.085000000000001e-7" ixz="-6.962790000000001e-7" iyx="-8.085000000000001e-7" iyy="0.000573075516" iyz="2.44386e-7" izx="-6.962790000000001e-7" izy="2.44386e-7" izz="0.000243343676"></inertia>
+		</inertial>
+	</link>
+	<link name="r_shoulder_ball_link">
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"></origin>
+			<mass value="0.001"></mass>
+			<inertia ixx="1.0e-6" ixy="1.0e-8" ixz="1.0e-8" iyy="1.0e-6" iyz="1.0e-8" izz="1.0e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="r_shoulder_fix_link">
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"></origin>
+			<mass value="0.001"></mass>
+			<inertia ixx="1.0e-6" ixy="1.0e-8" ixz="1.0e-8" iyy="1.0e-6" iyz="1.0e-8" izz="1.0e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="r_elbow_arm_link">		<visual>
+			<origin rpy="0 0 0" xyz="0 0 0"></origin>
+			<geometry>
+				<mesh filename="reachy2_core/reachy_description/meshes/upper_arm_visual.dae"></mesh>
+			</geometry>
+		</visual>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.075697"></sphere>
+			</geometry>
+			<origin xyz="-0.0007331160061472127 0.0005757827966163384 0.18562687851485954" rpy="0 0 0"></origin>
+		</collision>
+		<collision>
+			<geometry>
+				<sphere radius="0.075408"></sphere>
+			</geometry>
+			<origin xyz="-0.0059981160061472125 -0.0037362172033836615 0.09729287851485954" rpy="0 0 0"></origin>
+		</collision>
+		<collision>
+			<geometry>
+				<sphere radius="0.064325"></sphere>
+			</geometry>
+			<origin xyz="-0.002277116006147213 0.0024247827966163383 0.01526487851485954" rpy="0 0 0"></origin>
+		</collision>
+		<inertial>
+			<origin rpy="0 0 0" xyz="-0.000669 0.000509 0.144798"></origin>
+			<mass value="1.620"></mass>
+			<inertia ixx="0.007864" ixy="0.000005410021" ixz="-0.000117782969" iyx="0.000005410021" iyy="0.006998" iyz="0.000121931452" izx="-0.000117782969" izy="0.000121931452" izz="0.001828"></inertia>
+		</inertial>
+	</link>
+	<link name="r_elbow_base_link">
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"></origin>
+			<mass value="0.001"></mass>
+			<inertia ixx="1.0e-6" ixy="1.0e-8" ixz="1.0e-8" iyy="1.0e-6" iyz="1.0e-8" izz="1.0e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="r_elbow_dummy_link1">
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"></origin>
+			<mass value="0.001"></mass>
+			<inertia ixx="1.0e-6" ixy="1.0e-8" ixz="1.0e-8" iyy="1.0e-6" iyz="1.0e-8" izz="1.0e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="r_elbow_dummy_link2">
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"></origin>
+			<mass value="0.001"></mass>
+			<inertia ixx="1.0e-6" ixy="1.0e-8" ixz="1.0e-8" iyy="1.0e-6" iyz="1.0e-8" izz="1.0e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="r_elbow_first_link">		<visual>
+			<origin rpy="3.141592 0 -1.5707963267948966" xyz="0 0 0"></origin>
+			<geometry>
+				<sphere radius="0.045"/>
+			</geometry>
+		</visual>
+
+		<inertial>
+			<origin rpy="0 0 0" xyz="0.000096 -0.000015 -0.01777"></origin>
+			<mass value="0.487"></mass>
+			<inertia ixx="0.000577881945" ixy="-8.085000000000001e-7" ixz="-6.962790000000001e-7" iyx="-8.085000000000001e-7" iyy="0.000573075516" iyz="2.44386e-7" izx="-6.962790000000001e-7" izy="2.44386e-7" izz="0.000243343676"></inertia>
+		</inertial>
+	</link>
+	<link name="r_elbow_ball_link">
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"></origin>
+			<mass value="0.001"></mass>
+			<inertia ixx="1.0e-6" ixy="1.0e-8" ixz="1.0e-8" iyy="1.0e-6" iyz="1.0e-8" izz="1.0e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="r_elbow_fix_link">
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"></origin>
+			<mass value="0.001"></mass>
+			<inertia ixx="1.0e-6" ixy="1.0e-8" ixz="1.0e-8" iyy="1.0e-6" iyz="1.0e-8" izz="1.0e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="r_elbow_forearm_link">		<visual>
+			<origin rpy="0 0 0" xyz="0 0 0"></origin>
+			<geometry>
+				<mesh filename="reachy2_core/reachy_description/meshes/forearm_visual.dae"></mesh>
+			</geometry>
+		</visual>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.065205"></sphere>
+			</geometry>
+			<origin xyz="-0.00013615877242556317 -0.00985475277408988 -0.18589455003705393" rpy="0 0 0"></origin>
+		</collision>
+		<collision>
+			<geometry>
+				<sphere radius="0.063834"></sphere>
+			</geometry>
+			<origin xyz="-0.0009441587724255631 -0.00902575277408988 -0.10263855003705394" rpy="0 0 0"></origin>
+		</collision>
+		<collision>
+			<geometry>
+				<sphere radius="0.06353"></sphere>
+			</geometry>
+			<origin xyz="-6.215877242556316e-05 0.001884247225910119 -0.025905550037053936" rpy="0 0 0"></origin>
+		</collision>
+		<collision>
+			<geometry>
+				<sphere radius="0.055245"></sphere>
+			</geometry>
+			<origin xyz="0.0001548412275744368 8.124722591011917e-05 0.04585944996294607" rpy="0 0 0"></origin>
+		</collision>
+		<collision>
+			<geometry>
+				<sphere radius="0.055245"></sphere>
+			</geometry>
+			<origin xyz="0.0001548412275744368 8.124722591011917e-05 0.0985944996294607" rpy="0 0 0"></origin>
+		</collision>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.055245"></sphere>
+			</geometry>
+			<origin xyz="0.0001548412275744368 8.124722591011917e-05 0.1585944996294607" rpy="0 0 0"></origin>
+		</collision>
+		<collision>
+			<geometry>
+				<sphere radius="0.055245"></sphere>
+			</geometry>
+			<origin xyz="0.0001548412275744368 8.124722591011917e-05 0.2085944996294607" rpy="0 0 0"></origin>
+		</collision>
+		<inertial>
+			<origin rpy="0 0 0" xyz="0.00092892 -0.00254548 0.14021211"></origin>
+			<mass value="0.90719109"></mass>
+			<inertia ixx="0.00428278" ixy="-0.00000203" ixz="0.00011755" iyx="-0.00000203" iyy="0.0044585" iyz="-0.00004915" izx="0.00011755" izy="-0.00004915" izz="0.00047615"></inertia>
+		</inertial>
+	</link>
+	<link name="r_wrist_dummy_link1">
+		<inertial>
+			<mass value="0.001"></mass>
+			<origin rpy="0 0 0" xyz="0 0 0"></origin>
+			<inertia ixx="1.4166666666666668e-07" ixy="0" ixz="0" iyy="1.4166666666666668e-07" iyz="0" izz="2.6666666666666667e-07"></inertia>
+		</inertial>
+	</link>
+	<link name="r_wrist_dummy_link2">
+		<inertial>
+			<mass value="0.001"></mass>
+			<origin rpy="0 0 0" xyz="0 0 0"></origin>
+			<inertia ixx="1.4166666666666668e-07" ixy="0" ixz="0" iyy="1.4166666666666668e-07" iyz="0" izz="2.6666666666666667e-07"></inertia>
+		</inertial>
+	</link>
+	<link name="r_wrist_link">
+		<inertial>
+			<mass value="0.098"></mass>
+			<origin rpy="0 0 0" xyz="0 0 -0.005"></origin>
+			<inertia ixx="1.3883333333333333e-05" ixy="0" ixz="0" iyy="1.3883333333333333e-05" iyz="0" izz="2.6133333333333333e-05"></inertia>
+		</inertial>
+	</link>
+	<link name="r_wrist_ball_link">
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"></origin>
+			<mass value="0.001"></mass>
+			<inertia ixx="1.0e-6" ixy="1.0e-8" ixz="1.0e-8" iyy="1.0e-6" iyz="1.0e-8" izz="1.0e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="r_wrist_base_link">
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"></origin>
+			<mass value="0.001"></mass>
+			<inertia ixx="1.0e-6" ixy="1.0e-8" ixz="1.0e-8" iyy="1.0e-6" iyz="1.0e-8" izz="1.0e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="r_wrist_out_link">
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"></origin>
+			<mass value="0.001"></mass>
+			<inertia ixx="1.0e-6" ixy="1.0e-8" ixz="1.0e-8" iyy="1.0e-6" iyz="1.0e-8" izz="1.0e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="r_hand_palm_link">		<visual>
+			<origin rpy="0 0 0" xyz="0 0 0"></origin>
+			<geometry>
+				<mesh filename="reachy2_core/reachy_controllers/dynamixel_control/dynamixel_description/meshes/pincette_right_visual.dae"></mesh>
+			</geometry>
+		</visual>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.063779"></sphere>
+			</geometry>
+			<origin xyz="-0.02733753132802713 -0.005764200685458579 0.012592334027503477" rpy="0 0 0"></origin>
+		</collision>
+		<collision>
+			<geometry>
+				<sphere radius="0.041281"></sphere>
+			</geometry>
+			<origin xyz="-0.01920553132802713 0.02672079931454142 0.006516334027503476" rpy="0 0 0"></origin>
+		</collision>
+		<inertial>
+			<origin rpy="0 0 0" xyz="0.0070087 0.00974766 0.04392328"></origin>
+			<mass value="0.30798029"></mass>
+			<inertia ixx="0.00021928" ixy="-0.00003149" ixz="-0.00001759" iyx="-0.00003149" iyy="0.00016859" iyz="-0.00001396" izx="-0.00001759" izy="-0.00001396" izz="0.0002333"></inertia>
+		</inertial>
+	</link>
+	<link name="r_hand_virtual_gripper_link">
+		<inertial>
+			<mass value="0.01"></mass>
+			<origin rpy="0 0 0" xyz="0 0 0"></origin>
+			<inertia ixx="1.6666666666666668e-07" ixy="0" ixz="0" iyy="1.6666666666666668e-07" iyz="0" izz="1.6666666666666668e-07"></inertia>
+		</inertial>
+	</link>
+	<link name="r_hand_proximal_link">		<visual>
+			<origin rpy="0 0 0" xyz="0 0 0 "></origin>
+			<geometry>
+				<mesh filename="reachy2_core/reachy_controllers/dynamixel_control/dynamixel_description/meshes/pincette_proximal_visual.dae"></mesh>
+			</geometry>
+		</visual>
+
+		<inertial>
+			<origin rpy="0 0 0" xyz="0.00004101 0.002756 0.019654"></origin>
+			<mass value="0.03926395"></mass>
+			<inertia ixx="0.00001937" ixy="0.0" ixz="0.00000007" iyx="0.0" iyy="0.00002003" iyz="0.00000036" izx="0.00000007" izy="0.00000036" izz="0.00000463"></inertia>
+		</inertial>
+		<collision>
+			<geometry>
+				<sphere radius="0.02"></sphere>
+			</geometry>
+			<origin xyz="0. 0. 0." rpy="0 0 0"></origin>
+		</collision>
+		<collision>
+			<geometry>
+				<sphere radius="0.02"></sphere>
+			</geometry>
+			<origin xyz="0. 0. 0.01" rpy="0 0 0"></origin>
+		</collision>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.02"></sphere>
+			</geometry>
+			<origin xyz="0. 0. 0.02" rpy="0 0 0"></origin>
+		</collision>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.02"></sphere>
+			</geometry>
+			<origin xyz="0. 0. 0.03" rpy="0 0 0"></origin>
+		</collision>
+
+	</link>
+	<link name="r_hand_proximal_mimic_link">		<visual>
+			<origin rpy="0 0 0" xyz="0 0 0 "></origin>
+			<geometry>
+				<mesh filename="reachy2_core/reachy_controllers/dynamixel_control/dynamixel_description/meshes/pincette_proximal_visual.dae"></mesh>
+			</geometry>
+		</visual>
+
+		<inertial>
+			<origin rpy="0 0 0" xyz="0.00004101 0.002756 0.019654"></origin>
+			<mass value="0.03926395"></mass>
+			<inertia ixx="0.00001937" ixy="0.0" ixz="0.00000007" iyx="0.0" iyy="0.00002003" iyz="0.00000036" izx="0.00000007" izy="0.00000036" izz="0.00000463"></inertia>
+		</inertial>
+		<collision>
+			<geometry>
+				<sphere radius="0.02"></sphere>
+			</geometry>
+			<origin xyz="0. 0. 0." rpy="0 0 0"></origin>
+		</collision>
+		<collision>
+			<geometry>
+				<sphere radius="0.02"></sphere>
+			</geometry>
+			<origin xyz="0. 0. 0.01" rpy="0 0 0"></origin>
+		</collision>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.02"></sphere>
+			</geometry>
+			<origin xyz="0. 0. 0.02" rpy="0 0 0"></origin>
+		</collision>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.02"></sphere>
+			</geometry>
+			<origin xyz="0. 0. 0.03" rpy="0 0 0"></origin>
+		</collision>
+
+	</link>
+	<link name="r_hand_distal_link">		<visual>
+			<origin rpy="0 0 0" xyz="0 0 0 "></origin>
+			<geometry>
+				<mesh filename="reachy2_core/reachy_controllers/dynamixel_control/dynamixel_description/meshes/pincette_distal.dae"></mesh>
+			</geometry>
+		</visual>
+
+		<inertial>
+			<origin rpy="0 0 0" xyz="0.00000695 -0.00006402 0.01772685"></origin>
+			<mass value="0.02821091"></mass>
+			<inertia ixx="0.00000683" ixy="0.0" ixz="0.0" iyx="0.0" iyy="0.00000696" iyz="0.00000127" izx="0.0" izy="0.00000127" izz="0.0000028"></inertia>
+		</inertial>
+		<collision>
+			<geometry>
+				<sphere radius="0.02"></sphere>
+			</geometry>
+			<origin xyz="0. 0. 0." rpy="0 0 0"></origin>
+		</collision>
+		<collision>
+			<geometry>
+				<sphere radius="0.02"></sphere>
+			</geometry>
+			<origin xyz="0. 0. 0.01" rpy="0 0 0"></origin>
+		</collision>
+	</link>
+	<link name="r_hand_distal_mimic_link">		<visual>
+			<origin rpy="0 0 0" xyz="0 0 0 "></origin>
+			<geometry>
+				<mesh filename="reachy2_core/reachy_controllers/dynamixel_control/dynamixel_description/meshes/pincette_distal.dae"></mesh>
+			</geometry>
+		</visual>
+
+		<inertial>
+			<origin rpy="0 0 0" xyz="0.00000695 -0.00006402 0.01772685"></origin>
+			<mass value="0.02821091"></mass>
+			<inertia ixx="0.00000683" ixy="0.0" ixz="0.0" iyx="0.0" iyy="0.00000696" iyz="0.00000127" izx="0.0" izy="0.00000127" izz="0.0000028"></inertia>
+		</inertial>
+		<collision>
+			<geometry>
+				<sphere radius="0.02"></sphere>
+			</geometry>
+			<origin xyz="0. 0. 0." rpy="0 0 0"></origin>
+		</collision>
+		<collision>
+			<geometry>
+				<sphere radius="0.02"></sphere>
+			</geometry>
+			<origin xyz="0. 0. 0.01" rpy="0 0 0"></origin>
+		</collision>
+	</link>
+	<link name="r_arm_tip">
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"></origin>
+			<mass value="0.001"></mass>
+			<inertia ixx="1.0e-6" ixy="1.0e-8" ixz="1.0e-8" iyy="1.0e-6" iyz="1.0e-8" izz="1.0e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="r_arm_tip_bottom">
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"></origin>
+			<mass value="0.001"></mass>
+			<inertia ixx="1.0e-6" ixy="1.0e-8" ixz="1.0e-8" iyy="1.0e-6" iyz="1.0e-8" izz="1.0e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="l_shoulder_base_link">
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"></origin>
+			<mass value="0.001"></mass>
+			<inertia ixx="1.0e-6" ixy="1.0e-8" ixz="1.0e-8" iyy="1.0e-6" iyz="1.0e-8" izz="1.0e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="l_shoulder_dummy_link1">
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"></origin>
+			<mass value="0.001"></mass>
+			<inertia ixx="1.0e-6" ixy="1.0e-8" ixz="1.0e-8" iyy="1.0e-6" iyz="1.0e-8" izz="1.0e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="l_shoulder_dummy_link2">
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"></origin>
+			<mass value="0.001"></mass>
+			<inertia ixx="1.0e-6" ixy="1.0e-8" ixz="1.0e-8" iyy="1.0e-6" iyz="1.0e-8" izz="1.0e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="l_shoulder_first_link">		<visual>
+			<origin rpy="-1.5707963267948966 0 0" xyz="0 0 0"></origin>
+			<geometry>
+				<sphere radius="0.045"/>
+			</geometry>
+		</visual>
+
+		<inertial>
+			<origin rpy="0 0 0" xyz="0.000096 -0.000015 -0.01777"></origin>
+			<mass value="0.487"></mass>
+			<inertia ixx="0.000577881945" ixy="-8.085000000000001e-7" ixz="-6.962790000000001e-7" iyx="-8.085000000000001e-7" iyy="0.000573075516" iyz="2.44386e-7" izx="-6.962790000000001e-7" izy="2.44386e-7" izz="0.000243343676"></inertia>
+		</inertial>
+	</link>
+	<link name="l_shoulder_ball_link">
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"></origin>
+			<mass value="0.001"></mass>
+			<inertia ixx="1.0e-6" ixy="1.0e-8" ixz="1.0e-8" iyy="1.0e-6" iyz="1.0e-8" izz="1.0e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="l_shoulder_fix_link">
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"></origin>
+			<mass value="0.001"></mass>
+			<inertia ixx="1.0e-6" ixy="1.0e-8" ixz="1.0e-8" iyy="1.0e-6" iyz="1.0e-8" izz="1.0e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="l_elbow_arm_link">		<visual>
+			<origin rpy="0 0 0" xyz="0 0 0"></origin>
+			<geometry>
+				<mesh filename="reachy2_core/reachy_description/meshes/upper_arm_visual.dae"></mesh>
+			</geometry>
+		</visual>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.075697"></sphere>
+			</geometry>
+			<origin xyz="-0.0007331160061472127 0.0005757827966163384 0.18562687851485954" rpy="0 0 0"></origin>
+		</collision>
+		<collision>
+			<geometry>
+				<sphere radius="0.075408"></sphere>
+			</geometry>
+			<origin xyz="-0.0059981160061472125 -0.0037362172033836615 0.09729287851485954" rpy="0 0 0"></origin>
+		</collision>
+		<collision>
+			<geometry>
+				<sphere radius="0.064325"></sphere>
+			</geometry>
+			<origin xyz="-0.002277116006147213 0.0024247827966163383 0.01526487851485954" rpy="0 0 0"></origin>
+		</collision>
+		<inertial>
+			<origin rpy="0 0 0" xyz="-0.000669 0.000509 0.144798"></origin>
+			<mass value="1.620"></mass>
+			<inertia ixx="0.007864" ixy="0.000005410021" ixz="-0.000117782969" iyx="0.000005410021" iyy="0.006998" iyz="0.000121931452" izx="-0.000117782969" izy="0.000121931452" izz="0.001828"></inertia>
+		</inertial>
+	</link>
+	<link name="l_elbow_base_link">
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"></origin>
+			<mass value="0.001"></mass>
+			<inertia ixx="1.0e-6" ixy="1.0e-8" ixz="1.0e-8" iyy="1.0e-6" iyz="1.0e-8" izz="1.0e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="l_elbow_dummy_link1">
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"></origin>
+			<mass value="0.001"></mass>
+			<inertia ixx="1.0e-6" ixy="1.0e-8" ixz="1.0e-8" iyy="1.0e-6" iyz="1.0e-8" izz="1.0e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="l_elbow_dummy_link2">
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"></origin>
+			<mass value="0.001"></mass>
+			<inertia ixx="1.0e-6" ixy="1.0e-8" ixz="1.0e-8" iyy="1.0e-6" iyz="1.0e-8" izz="1.0e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="l_elbow_first_link">		<visual>
+			<origin rpy="3.141592 0 1.5707963267948966" xyz="0 0 0"></origin>
+			<geometry>
+				<sphere radius="0.045"/>
+			</geometry>
+		</visual>
+
+		<inertial>
+			<origin rpy="0 0 0" xyz="0.000096 -0.000015 -0.01777"></origin>
+			<mass value="0.487"></mass>
+			<inertia ixx="0.000577881945" ixy="-8.085000000000001e-7" ixz="-6.962790000000001e-7" iyx="-8.085000000000001e-7" iyy="0.000573075516" iyz="2.44386e-7" izx="-6.962790000000001e-7" izy="2.44386e-7" izz="0.000243343676"></inertia>
+		</inertial>
+	</link>
+	<link name="l_elbow_ball_link">
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"></origin>
+			<mass value="0.001"></mass>
+			<inertia ixx="1.0e-6" ixy="1.0e-8" ixz="1.0e-8" iyy="1.0e-6" iyz="1.0e-8" izz="1.0e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="l_elbow_fix_link">
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"></origin>
+			<mass value="0.001"></mass>
+			<inertia ixx="1.0e-6" ixy="1.0e-8" ixz="1.0e-8" iyy="1.0e-6" iyz="1.0e-8" izz="1.0e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="l_elbow_forearm_link">		<visual>
+			<origin rpy="0 0 0" xyz="0 0 0"></origin>
+			<geometry>
+				<mesh filename="reachy2_core/reachy_description/meshes/forearm_visual.dae"></mesh>
+			</geometry>
+		</visual>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.065205"></sphere>
+			</geometry>
+			<origin xyz="-0.00013615877242556317 -0.00985475277408988 -0.18589455003705393" rpy="0 0 0"></origin>
+		</collision>
+		<collision>
+			<geometry>
+				<sphere radius="0.063834"></sphere>
+			</geometry>
+			<origin xyz="-0.0009441587724255631 -0.00902575277408988 -0.10263855003705394" rpy="0 0 0"></origin>
+		</collision>
+		<collision>
+			<geometry>
+				<sphere radius="0.06353"></sphere>
+			</geometry>
+			<origin xyz="-6.215877242556316e-05 0.001884247225910119 -0.025905550037053936" rpy="0 0 0"></origin>
+		</collision>
+		<collision>
+			<geometry>
+				<sphere radius="0.055245"></sphere>
+			</geometry>
+			<origin xyz="0.0001548412275744368 8.124722591011917e-05 0.04585944996294607" rpy="0 0 0"></origin>
+		</collision>
+		<collision>
+			<geometry>
+				<sphere radius="0.055245"></sphere>
+			</geometry>
+			<origin xyz="0.0001548412275744368 8.124722591011917e-05 0.0985944996294607" rpy="0 0 0"></origin>
+		</collision>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.055245"></sphere>
+			</geometry>
+			<origin xyz="0.0001548412275744368 8.124722591011917e-05 0.1585944996294607" rpy="0 0 0"></origin>
+		</collision>
+		<collision>
+			<geometry>
+				<sphere radius="0.055245"></sphere>
+			</geometry>
+			<origin xyz="0.0001548412275744368 8.124722591011917e-05 0.2085944996294607" rpy="0 0 0"></origin>
+		</collision>
+		<inertial>
+			<origin rpy="0 0 0" xyz="0.00092892 -0.00254548 0.14021211"></origin>
+			<mass value="0.90719109"></mass>
+			<inertia ixx="0.00428278" ixy="-0.00000203" ixz="0.00011755" iyx="-0.00000203" iyy="0.0044585" iyz="-0.00004915" izx="0.00011755" izy="-0.00004915" izz="0.00047615"></inertia>
+		</inertial>
+	</link>
+	<link name="l_wrist_dummy_link1">
+		<inertial>
+			<mass value="0.001"></mass>
+			<origin rpy="0 0 0" xyz="0 0 0"></origin>
+			<inertia ixx="1.4166666666666668e-07" ixy="0" ixz="0" iyy="1.4166666666666668e-07" iyz="0" izz="2.6666666666666667e-07"></inertia>
+		</inertial>
+	</link>
+	<link name="l_wrist_dummy_link2">
+		<inertial>
+			<mass value="0.001"></mass>
+			<origin rpy="0 0 0" xyz="0 0 0"></origin>
+			<inertia ixx="1.4166666666666668e-07" ixy="0" ixz="0" iyy="1.4166666666666668e-07" iyz="0" izz="2.6666666666666667e-07"></inertia>
+		</inertial>
+	</link>
+	<link name="l_wrist_link">
+		<inertial>
+			<mass value="0.098"></mass>
+			<origin rpy="0 0 0" xyz="0 0 -0.005"></origin>
+			<inertia ixx="1.3883333333333333e-05" ixy="0" ixz="0" iyy="1.3883333333333333e-05" iyz="0" izz="2.6133333333333333e-05"></inertia>
+		</inertial>
+	</link>
+	<link name="l_wrist_ball_link">
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"></origin>
+			<mass value="0.001"></mass>
+			<inertia ixx="1.0e-6" ixy="1.0e-8" ixz="1.0e-8" iyy="1.0e-6" iyz="1.0e-8" izz="1.0e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="l_wrist_base_link">
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"></origin>
+			<mass value="0.001"></mass>
+			<inertia ixx="1.0e-6" ixy="1.0e-8" ixz="1.0e-8" iyy="1.0e-6" iyz="1.0e-8" izz="1.0e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="l_wrist_out_link">
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"></origin>
+			<mass value="0.001"></mass>
+			<inertia ixx="1.0e-6" ixy="1.0e-8" ixz="1.0e-8" iyy="1.0e-6" iyz="1.0e-8" izz="1.0e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="l_hand_palm_link">		<visual>
+			<origin rpy="0 0 0" xyz="0 0 0"></origin>
+			<geometry>
+				<mesh filename="reachy2_core/reachy_controllers/dynamixel_control/dynamixel_description/meshes/pincette_right_visual.dae"></mesh>
+			</geometry>
+		</visual>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.063779"></sphere>
+			</geometry>
+			<origin xyz="-0.02733753132802713 -0.005764200685458579 0.012592334027503477" rpy="0 0 0"></origin>
+		</collision>
+		<collision>
+			<geometry>
+				<sphere radius="0.041281"></sphere>
+			</geometry>
+			<origin xyz="-0.01920553132802713 0.02672079931454142 0.006516334027503476" rpy="0 0 0"></origin>
+		</collision>
+		<inertial>
+			<origin rpy="0 0 0" xyz="0.0070087 0.00974766 0.04392328"></origin>
+			<mass value="0.30798029"></mass>
+			<inertia ixx="0.00021928" ixy="-0.00003149" ixz="-0.00001759" iyx="-0.00003149" iyy="0.00016859" iyz="-0.00001396" izx="-0.00001759" izy="-0.00001396" izz="0.0002333"></inertia>
+		</inertial>
+	</link>
+	<link name="l_hand_virtual_gripper_link">
+		<inertial>
+			<mass value="0.01"></mass>
+			<origin rpy="0 0 0" xyz="0 0 0"></origin>
+			<inertia ixx="1.6666666666666668e-07" ixy="0" ixz="0" iyy="1.6666666666666668e-07" iyz="0" izz="1.6666666666666668e-07"></inertia>
+		</inertial>
+	</link>
+	<link name="l_hand_proximal_link">		<visual>
+			<origin rpy="0 0 0" xyz="0 0 0 "></origin>
+			<geometry>
+				<mesh filename="reachy2_core/reachy_controllers/dynamixel_control/dynamixel_description/meshes/pincette_proximal_visual.dae"></mesh>
+			</geometry>
+		</visual>
+
+		<inertial>
+			<origin rpy="0 0 0" xyz="0.00004101 0.002756 0.019654"></origin>
+			<mass value="0.03926395"></mass>
+			<inertia ixx="0.00001937" ixy="0.0" ixz="0.00000007" iyx="0.0" iyy="0.00002003" iyz="0.00000036" izx="0.00000007" izy="0.00000036" izz="0.00000463"></inertia>
+		</inertial>
+		<collision>
+			<geometry>
+				<sphere radius="0.02"></sphere>
+			</geometry>
+			<origin xyz="0. 0. 0." rpy="0 0 0"></origin>
+		</collision>
+		<collision>
+			<geometry>
+				<sphere radius="0.02"></sphere>
+			</geometry>
+			<origin xyz="0. 0. 0.01" rpy="0 0 0"></origin>
+		</collision>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.02"></sphere>
+			</geometry>
+			<origin xyz="0. 0. 0.02" rpy="0 0 0"></origin>
+		</collision>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.02"></sphere>
+			</geometry>
+			<origin xyz="0. 0. 0.03" rpy="0 0 0"></origin>
+		</collision>
+	</link>
+	<link name="l_hand_proximal_mimic_link">		<visual>
+			<origin rpy="0 0 0" xyz="0 0 0 "></origin>
+			<geometry>
+				<mesh filename="reachy2_core/reachy_controllers/dynamixel_control/dynamixel_description/meshes/pincette_proximal_visual.dae"></mesh>
+			</geometry>
+		</visual>
+
+		<inertial>
+			<origin rpy="0 0 0" xyz="0.00004101 0.002756 0.019654"></origin>
+			<mass value="0.03926395"></mass>
+			<inertia ixx="0.00001937" ixy="0.0" ixz="0.00000007" iyx="0.0" iyy="0.00002003" iyz="0.00000036" izx="0.00000007" izy="0.00000036" izz="0.00000463"></inertia>
+		</inertial>
+		<collision>
+			<geometry>
+				<sphere radius="0.02"></sphere>
+			</geometry>
+			<origin xyz="0. 0. 0." rpy="0 0 0"></origin>
+		</collision>
+		<collision>
+			<geometry>
+				<sphere radius="0.02"></sphere>
+			</geometry>
+			<origin xyz="0. 0. 0.01" rpy="0 0 0"></origin>
+		</collision>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.02"></sphere>
+			</geometry>
+			<origin xyz="0. 0. 0.02" rpy="0 0 0"></origin>
+		</collision>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.02"></sphere>
+			</geometry>
+			<origin xyz="0. 0. 0.03" rpy="0 0 0"></origin>
+		</collision>
+	</link>
+	<link name="l_hand_distal_link">		<visual>
+			<origin rpy="0 0 0" xyz="0 0 0 "></origin>
+			<geometry>
+				<mesh filename="reachy2_core/reachy_controllers/dynamixel_control/dynamixel_description/meshes/pincette_distal.dae"></mesh>
+			</geometry>
+		</visual>
+
+		<inertial>
+			<origin rpy="0 0 0" xyz="0.00000695 -0.00006402 0.01772685"></origin>
+			<mass value="0.02821091"></mass>
+			<inertia ixx="0.00000683" ixy="0.0" ixz="0.0" iyx="0.0" iyy="0.00000696" iyz="0.00000127" izx="0.0" izy="0.00000127" izz="0.0000028"></inertia>
+		</inertial>
+		<collision>
+			<geometry>
+				<sphere radius="0.02"></sphere>
+			</geometry>
+			<origin xyz="0. 0. 0." rpy="0 0 0"></origin>
+		</collision>
+		<collision>
+			<geometry>
+				<sphere radius="0.02"></sphere>
+			</geometry>
+			<origin xyz="0. 0. 0.01" rpy="0 0 0"></origin>
+		</collision>
+	</link>
+	<link name="l_hand_distal_mimic_link">		<visual>
+			<origin rpy="0 0 0" xyz="0 0 0 "></origin>
+			<geometry>
+				<mesh filename="reachy2_core/reachy_controllers/dynamixel_control/dynamixel_description/meshes/pincette_distal.dae"></mesh>
+			</geometry>
+		</visual>
+
+		<inertial>
+			<origin rpy="0 0 0" xyz="0.00000695 -0.00006402 0.01772685"></origin>
+			<mass value="0.02821091"></mass>
+			<inertia ixx="0.00000683" ixy="0.0" ixz="0.0" iyx="0.0" iyy="0.00000696" iyz="0.00000127" izx="0.0" izy="0.00000127" izz="0.0000028"></inertia>
+		</inertial>
+		<collision>
+			<geometry>
+				<sphere radius="0.02"></sphere>
+			</geometry>
+			<origin xyz="0. 0. 0." rpy="0 0 0"></origin>
+		</collision>
+		<collision>
+			<geometry>
+				<sphere radius="0.02"></sphere>
+			</geometry>
+			<origin xyz="0. 0. 0.01" rpy="0 0 0"></origin>
+		</collision>
+	</link>
+	<link name="l_arm_tip">
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"></origin>
+			<mass value="0.001"></mass>
+			<inertia ixx="1.0e-6" ixy="1.0e-8" ixz="1.0e-8" iyy="1.0e-6" iyz="1.0e-8" izz="1.0e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="l_arm_tip_bottom">
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"></origin>
+			<mass value="0.001"></mass>
+			<inertia ixx="1.0e-6" ixy="1.0e-8" ixz="1.0e-8" iyy="1.0e-6" iyz="1.0e-8" izz="1.0e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="depth_cam_l_optical">
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"></origin>
+			<mass value="0.001"></mass>
+			<inertia ixx="1.0e-6" ixy="1.0e-8" ixz="1.0e-8" iyy="1.0e-6" iyz="1.0e-8" izz="1.0e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="depth_cam_l_frame">
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"></origin>
+			<mass value="0.001"></mass>
+			<inertia ixx="1.0e-6" ixy="1.0e-8" ixz="1.0e-8" iyy="1.0e-6" iyz="1.0e-8" izz="1.0e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="depth_cam_rgb_optical">
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"></origin>
+			<mass value="0.001"></mass>
+			<inertia ixx="1.0e-6" ixy="1.0e-8" ixz="1.0e-8" iyy="1.0e-6" iyz="1.0e-8" izz="1.0e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="depth_cam_rgb_optical_frame">
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"></origin>
+			<mass value="0.001"></mass>
+			<inertia ixx="1.0e-6" ixy="1.0e-8" ixz="1.0e-8" iyy="1.0e-6" iyz="1.0e-8" izz="1.0e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="depth_cam_rgb_frame">
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"></origin>
+			<mass value="0.001"></mass>
+			<inertia ixx="1.0e-6" ixy="1.0e-8" ixz="1.0e-8" iyy="1.0e-6" iyz="1.0e-8" izz="1.0e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="depth_cam_r_optical">
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"></origin>
+			<mass value="0.001"></mass>
+			<inertia ixx="1.0e-6" ixy="1.0e-8" ixz="1.0e-8" iyy="1.0e-6" iyz="1.0e-8" izz="1.0e-6"></inertia>
+		</inertial>
+	</link>
+	<link name="depth_cam_r_frame">
+		<inertial>
+			<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"></origin>
+			<mass value="0.001"></mass>
+			<inertia ixx="1.0e-6" ixy="1.0e-8" ixz="1.0e-8" iyy="1.0e-6" iyz="1.0e-8" izz="1.0e-6"></inertia>
+		</inertial>
+	</link>
+	<joint name="drivewhl1_joint" type="fixed">
+		<parent link="base_link"></parent>
+		<child link="drivewhl1_link"></child>
+		<origin rpy="0 0 0.5235987755982989" xyz="0.09025000000000001 -0.15631758538309115 -0.0024999999999999883"></origin>
+		<axis xyz="0 1 0"></axis>
+		<joint_properties damping="0.5" friction="0.1"></joint_properties>
+	</joint>
+	<joint name="drivewhl1_extra_joint" type="fixed">
+		<origin rpy="0 0 0" xyz="0 0 0"></origin>
+		<axis xyz="0 0 0"></axis>
+		<parent link="drivewhl1_link"></parent>
+		<child link="drivewhl1_extra_link"></child>
+	</joint>
+	<joint name="drivewhl2_joint" type="fixed">
+		<parent link="base_link"></parent>
+		<child link="drivewhl2_link"></child>
+		<origin rpy="0 0 -3.6651914291880923" xyz="0.09025000000000001 0.15631758538309115 -0.0024999999999999883"></origin>
+		<axis xyz="0 1 0"></axis>
+		<joint_properties damping="0.5" friction="0.1"></joint_properties>
+	</joint>
+	<joint name="drivewhl2_extra_joint" type="fixed">
+		<origin rpy="0 0 0" xyz="0 0 0"></origin>
+		<axis xyz="0 0 0"></axis>
+		<parent link="drivewhl2_link"></parent>
+		<child link="drivewhl2_extra_link"></child>
+	</joint>
+	<joint name="drivewhl3_joint" type="fixed">
+		<parent link="base_link"></parent>
+		<child link="drivewhl3_link"></child>
+		<origin rpy="0 0 -1.5707963267948966" xyz="-0.1805 -2.2104874724609726e-17 -0.0024999999999999883"></origin>
+		<axis xyz="0 1 0"></axis>
+		<joint_properties damping="0.5" friction="0.1"></joint_properties>
+	</joint>
+	<joint name="drivewhl3_extra_joint" type="fixed">
+		<origin rpy="0 0 0" xyz="0 0 0"></origin>
+		<axis xyz="0 0 0"></axis>
+		<parent link="drivewhl3_link"></parent>
+		<child link="drivewhl3_extra_link"></child>
+	</joint>
+	<joint name="lidar_joint" type="fixed">
+		<parent link="base_link"></parent>
+		<child link="lidar_link"></child>
+		<origin rpy="0 0 0" xyz="0.155 0 0.12710000000000002"></origin>
+	</joint>
+	<joint name="back_bar_joint" type="fixed">
+		<origin rpy="0 0 0" xyz="-0.09 0 0.241"></origin>
+		<parent link="base_link"></parent>
+		<child link="back_bar_base"></child>
+	</joint>
+	<joint name="tripod_joint" type="prismatic">
+		<origin rpy="0 0 0" xyz="0 0 0.035"></origin>
+		<parent link="back_bar_base"></parent>
+		<child link="back_bar_inner"></child>
+		<limit effort="1.0" lower="0.0" upper="0.210" velocity="0.1"></limit>
+		<axis xyz="0 0 1"></axis>
+		<dynamics damping="0.01" friction="0.1"></dynamics>
+	</joint>
+	<joint name="left_bar_anchor_to_base" type="fixed">
+		<origin rpy="0 0 0" xyz="0.084 0.066 0.241"></origin>
+		<parent link="base_link"></parent>
+		<child link="left_bar_anchor"></child>
+	</joint>
+	<joint name="left_bar_joint_mimic" type="revolute">
+		<origin rpy="0 0 0.19088666029061982" xyz="0 0.048 -0.258"></origin>
+		<parent link="torso"></parent>
+		<child link="left_bar_inner"></child>
+		<limit effort="0.01" lower="-1.0" upper="1.0" velocity="0.01"></limit>
+		<axis xyz="0 1 0"></axis>
+		<mimic joint="tripod_joint" multiplier="0.2864183599287582" offset="-0.1967146343049915"></mimic>
+		<dynamics damping="0.01" friction="0.1"></dynamics>
+	</joint>
+	<joint name="left_bar_prism_joint_mimic" type="prismatic">
+		<origin rpy="0 0 0" xyz="0 0 -0.485"></origin>
+		<parent link="left_bar_inner"></parent>
+		<child link="left_bar_base"></child>
+		<limit effort="1.0" lower="-1.0" upper="1.0" velocity="0.5"></limit>
+		<axis xyz="0 0 1"></axis>
+		<mimic joint="tripod_joint" multiplier="-0.9861535348976198" offset="0.4814718126556904"></mimic>
+		<dynamics damping="0.01" friction="0.1"></dynamics>
+	</joint>
+	<joint name="right_bar_anchor_to_base" type="fixed">
+		<origin rpy="0 0 0" xyz="0.084 -0.066 0.241"></origin>
+		<parent link="base_link"></parent>
+		<child link="right_bar_anchor"></child>
+	</joint>
+	<joint name="right_bar_joint_mimic" type="revolute">
+		<origin rpy="0 0 -0.19088666029061982" xyz="0 -0.048 -0.258"></origin>
+		<parent link="torso"></parent>
+		<child link="right_bar_inner"></child>
+		<limit effort="0.01" lower="-1.0" upper="1.0" velocity="0.01"></limit>
+		<axis xyz="0 1 0"></axis>
+		<mimic joint="tripod_joint" multiplier="0.2864183599287582" offset="-0.1967146343049915"></mimic>
+		<dynamics damping="0.01" friction="0.1"></dynamics>
+	</joint>
+	<joint name="right_bar_prism_joint_mimic" type="prismatic">
+		<origin rpy="0 0 0" xyz="0 0 -0.485"></origin>
+		<parent link="right_bar_inner"></parent>
+		<child link="right_bar_base"></child>
+		<limit effort="1.0" lower="-1.0" upper="1.0" velocity="0.5"></limit>
+		<axis xyz="0 0 1"></axis>
+		<mimic joint="tripod_joint" multiplier="-0.9861535348976198" offset="0.4814718126556904"></mimic>
+		<dynamics damping="0.01" friction="0.1"></dynamics>
+	</joint>
+	<joint name="torso_base" type="fixed">
+		<origin rpy="0 0 0" xyz="0.08 0 0.72"></origin>
+		<parent link="back_bar_inner"></parent>
+		<child link="torso"></child>
+	</joint>
+	<joint name="neck_ball_joint" type="fixed">
+		<origin rpy="0 0 0" xyz="0 0 0"></origin>
+		<parent link="neck_link"></parent>
+		<child link="neck_ball_link"></child>
+	</joint>
+	<joint name="neck_base_joint" type="fixed">
+		<origin rpy="0 0.17453292519943295 0.0" xyz="0.0 0 0.115"></origin>
+		<parent link="torso"></parent>
+		<child link="neck_base_link"></child>
+	</joint>
+	<joint name="neck_out_joint" type="fixed">
+		<origin rpy="0 0 0" xyz="0 0 0"></origin>
+		<parent link="neck_ball_link"></parent>
+		<child link="neck_out_link"></child>
+	</joint>
+	<joint name="neck_roll" type="revolute">
+		<origin rpy="0 0 0" xyz="0 0 0"></origin>
+		<parent link="neck_base_link"></parent>
+		<child link="neck_dummy_link1"></child>
+		<axis xyz="1 0 0"></axis>
+		<limit effort="1000.0" lower="-0.35" upper="0.35" velocity="100.0"></limit>
+		<dynamics damping="0.01" friction="0.1"></dynamics>
+	</joint>
+	<joint name="neck_pitch" type="revolute">
+		<origin rpy="0 0 0" xyz="0 0 0"></origin>
+		<parent link="neck_dummy_link1"></parent>
+		<child link="neck_dummy_link2"></child>
+		<axis xyz="0 1 0"></axis>
+		<limit effort="1000.0" lower="-0.35" upper="0.35" velocity="100.0"></limit>
+		<dynamics damping="0.01" friction="0.1"></dynamics>
+	</joint>
+	<joint name="neck_yaw" type="revolute">
+		<origin rpy="0 0 0" xyz="0 0 0"></origin>
+		<parent link="neck_dummy_link2"></parent>
+		<child link="neck_link"></child>
+		<axis xyz="0 0 1"></axis>
+		<limit effort="1000.0" lower="-1.57" upper="1.57" velocity="100.0"></limit>
+		<dynamics damping="0.01" friction="0.1"></dynamics>
+	</joint>
+	<joint name="neck_fixed" type="fixed">
+		<origin rpy="0.0 0.0 0.0" xyz="0 0 0"></origin>
+		<parent link="neck_out_link"></parent>
+		<child link="head"></child>
+	</joint>
+	<joint name="head_base_fixed" type="fixed">
+		<origin rpy="0.0 0.0 0" xyz="0.0 0 0.0"></origin>
+		<parent link="head"></parent>
+		<child link="head_base"></child>
+	</joint>
+	<joint name="head_tip_fixed" type="fixed">
+		<origin rpy="0 0.0 0" xyz="0.05643 0.0 0.062"></origin>
+		<parent link="head"></parent>
+		<child link="head_tip"></child>
+	</joint>
+	<joint name="antenna_left" type="revolute">
+		<origin rpy="0.07374016089676041 -1.061282358260192 -1.0035643198967394" xyz="-0.023 0.055 0.091"></origin>
+		<parent link="head"></parent>
+		<child link="antenna_left_link"></child>
+		<axis xyz="0 0 1"></axis>
+		<limit effort="0.0" lower="-1.5707963267948966" upper="1.5707963267948966" velocity="0.0"></limit>
+	</joint>
+	<joint name="antenna_right" type="revolute">
+		<origin rpy="-0.07374016089676041 -1.061282358260192 1.0035643198967394" xyz="-0.023 -0.055 0.091"></origin>
+		<parent link="head"></parent>
+		<child link="antenna_right_link"></child>
+		<axis xyz="0 0 1"></axis>
+		<limit effort="0.0" lower="-1.5707963267948966" upper="1.5707963267948966" velocity="0.0"></limit>
+	</joint>
+	<joint name="left_cam_fixed" type="fixed">
+		<origin rpy="0.0 0.0  -0.0" xyz="0.03531 0.0325 0.062"></origin>
+		<parent link="head"></parent>
+		<child link="left_camera"></child>
+	</joint>
+	<joint name="left_camera_optical_joint" type="fixed">
+		<origin rpy="-1.5707963267948966 0 -1.5707963267948966" xyz="0 0 0"></origin>
+		<parent link="left_camera"></parent>
+		<child link="left_camera_optical"></child>
+	</joint>
+	<joint name="left_camera_optical_frame_joint" type="fixed">
+		<origin rpy="-1.5707963267948966 0 -1.5707963267948966" xyz="0.01 0 0"></origin>
+		<parent link="left_camera"></parent>
+		<child link="left_camera_optical_frame"></child>
+	</joint>
+	<joint name="right_cam_fixed" type="fixed">
+		<origin rpy="0.0 0.0 0.0" xyz="0.03531 -0.0325 0.062"></origin>
+		<parent link="head"></parent>
+		<child link="right_camera"></child>
+	</joint>
+	<joint name="right_camera_optical_joint" type="fixed">
+		<origin rpy="-1.5707963267948966 0 -1.5707963267948966" xyz="0 0 0"></origin>
+		<parent link="right_camera"></parent>
+		<child link="right_camera_optical"></child>
+	</joint>
+	<joint name="right_camera_optical_frame_joint" type="fixed">
+		<origin rpy="-1.5707963267948966 0 -1.5707963267948966" xyz="0.01 0 0"></origin>
+		<parent link="right_camera"></parent>
+		<child link="right_camera_optical_frame"></child>
+	</joint>
+	<joint name="tof_cam_fixed" type="fixed">
+		<origin rpy="0.0 0.0 0" xyz="0.05643 0 0.061954"></origin>
+		<parent link="head"></parent>
+		<child link="tof_camera"></child>
+	</joint>
+	<joint name="tof_camera_optical_joint" type="fixed">
+		<origin rpy="-1.5707963267948966 0 -1.5707963267948966" xyz="0 0 0"></origin>
+		<parent link="tof_camera"></parent>
+		<child link="tof_camera_optical"></child>
+	</joint>
+	<joint name="tof_camera_optical_frame_joint" type="fixed">
+		<origin rpy="-1.5707963267948966 0 -1.5707963267948966" xyz="0 0 0"></origin>
+		<parent link="tof_camera"></parent>
+		<child link="tof_camera_optical_frame"></child>
+	</joint>
+	<joint name="r_shoulder_base_joint" type="fixed">
+		<origin rpy="1.3089969389957472 0 0.17453292519943295" xyz="0.0 -0.2 0.0"></origin>
+		<parent link="torso"></parent>
+		<child link="r_shoulder_base_link"></child>
+	</joint>
+	<joint name="r_shoulder_dummy_1" type="fixed">
+		<origin rpy="0 0 0" xyz="0 0 0"></origin>
+		<parent link="r_shoulder_base_link"></parent>
+		<child link="r_shoulder_dummy_link1"></child>
+	</joint>
+	<joint name="r_shoulder_dummy_2" type="fixed">
+		<origin rpy="-1.5707963267948966 0 0" xyz="0 0 0"></origin>
+		<parent link="r_shoulder_dummy_link1"></parent>
+		<child link="r_shoulder_dummy_link2"></child>
+	</joint>
+	<joint name="r_shoulder_pitch" type="revolute">
+		<origin rpy="0 0 0" xyz="0 0 0"></origin>
+		<parent link="r_shoulder_dummy_link2"></parent>
+		<child link="r_shoulder_first_link"></child>
+		<axis xyz="0 1 0"></axis>
+		<limit effort="1000.0" lower="-3.141592653589793" upper="3.141592653589793" velocity="100.0"></limit>
+		<safety_controller k_position="500" k_velocity="500" soft_lower_limit="-3.141592" soft_upper_limit="3.1415"></safety_controller>
+		<dynamics damping="0.01" friction="0.1"></dynamics>
+	</joint>
+	<joint name="r_shoulder_roll" type="revolute">
+		<origin rpy=" 0 0 0" xyz="0 0 0"></origin>
+		<parent link="r_shoulder_first_link"></parent>
+		<child link="r_shoulder_ball_link"></child>
+		<axis xyz="1 0 0"></axis>
+		<limit effort="1000.0" lower="-3.141592653589793" upper="0.0" velocity="100.0"></limit>
+		<safety_controller k_position="500" k_velocity="500" soft_lower_limit="-3.1415" soft_upper_limit="3.1415"></safety_controller>
+		<dynamics damping="0.01" friction="0.1"></dynamics>
+	</joint>
+	<joint name="r_shoulder_dummy_out" type="fixed">
+		<origin rpy="1.5707963267948966 0 0" xyz="0 0 0"></origin>
+		<parent link="r_shoulder_ball_link"></parent>
+		<child link="r_shoulder_fix_link"></child>
+	</joint>
+	<joint name="r_elbow_arm_joint" type="fixed">
+		<origin rpy="0 1.5707963267948966 -1.5707963267948966" xyz="0 0 0.0"></origin>
+		<parent link="r_shoulder_fix_link"></parent>
+		<child link="r_elbow_arm_link"></child>
+	</joint>
+	<joint name="r_elbow_base_joint" type="fixed">
+		<origin rpy="0 0 0" xyz="0 0 0.28"></origin>
+		<parent link="r_elbow_arm_link"></parent>
+		<child link="r_elbow_base_link"></child>
+	</joint>
+	<joint name="r_elbow_dummy_1" type="fixed">
+		<origin rpy="0 0 0" xyz="0 0 0"></origin>
+		<parent link="r_elbow_base_link"></parent>
+		<child link="r_elbow_dummy_link1"></child>
+	</joint>
+	<joint name="r_elbow_dummy_2" type="fixed">
+		<origin rpy="3.141592 0 1.5707963267948966" xyz="0 0 0"></origin>
+		<parent link="r_elbow_dummy_link1"></parent>
+		<child link="r_elbow_dummy_link2"></child>
+	</joint>
+	<joint name="r_elbow_yaw" type="revolute">
+		<origin rpy="0 0 0" xyz="0 0 0"></origin>
+		<parent link="r_elbow_dummy_link2"></parent>
+		<child link="r_elbow_first_link"></child>
+		<axis xyz="0 0 1"></axis>
+		<limit effort="1000.0" lower="-3.141592653589793" upper="3.141592653589793" velocity="100.0"></limit>
+		<safety_controller k_position="500" k_velocity="500" soft_lower_limit="-3.141592" soft_upper_limit="3.1415"></safety_controller>
+		<dynamics damping="0.01" friction="0.1"></dynamics>
+	</joint>
+	<joint name="r_elbow_pitch" type="revolute">
+		<origin rpy=" 0 0 0" xyz="0 0 0"></origin>
+		<parent link="r_elbow_first_link"></parent>
+		<child link="r_elbow_ball_link"></child>
+		<axis xyz="0 1 0"></axis>
+		<limit effort="1000.0" lower="-2.25" upper="0.1" velocity="100.0"></limit>
+		<safety_controller k_position="500" k_velocity="500" soft_lower_limit="-3.1415" soft_upper_limit="3.1415"></safety_controller>
+		<dynamics damping="0.01" friction="0.1"></dynamics>
+	</joint>
+	<joint name="r_elbow_dummy_out" type="fixed">
+		<origin rpy="3.141592 0 1.5707963267948966" xyz="0 0 0"></origin>
+		<parent link="r_elbow_ball_link"></parent>
+		<child link="r_elbow_fix_link"></child>
+	</joint>
+	<joint name="r_elbow_forearm_joint" type="fixed">
+		<origin rpy="0 0 0" xyz="0 0 0.0"></origin>
+		<parent link="r_elbow_fix_link"></parent>
+		<child link="r_elbow_forearm_link"></child>
+	</joint>
+	<joint name="r_wrist_ball_joint" type="fixed">
+		<origin rpy="0 0 0" xyz="0 0 0"></origin>
+		<parent link="r_wrist_link"></parent>
+		<child link="r_wrist_ball_link"></child>
+	</joint>
+	<joint name="r_wrist_base_joint" type="fixed">
+		<origin rpy="3.141592 0 1.5707963267948966" xyz="0 0 0.28"></origin>
+		<parent link="r_elbow_forearm_link"></parent>
+		<child link="r_wrist_base_link"></child>
+	</joint>
+	<joint name="r_wrist_out_joint" type="fixed">
+		<origin rpy="3.141592 0 0" xyz="0 0 0"></origin>
+		<parent link="r_wrist_ball_link"></parent>
+		<child link="r_wrist_out_link"></child>
+	</joint>
+	<joint name="r_wrist_roll" type="revolute">
+		<origin rpy="0 0 0" xyz="0 0 0"></origin>
+		<parent link="r_wrist_base_link"></parent>
+		<child link="r_wrist_dummy_link1"></child>
+		<axis xyz="1 0 0"></axis>
+		<limit effort="1000.0" lower="-0.35" upper="0.35" velocity="100.0"></limit>
+		<dynamics damping="0.01" friction="0.1"></dynamics>
+	</joint>
+	<joint name="r_wrist_pitch" type="revolute">
+		<origin rpy="0 0 0" xyz="0 0 0"></origin>
+		<parent link="r_wrist_dummy_link1"></parent>
+		<child link="r_wrist_dummy_link2"></child>
+		<axis xyz="0 1 0"></axis>
+		<limit effort="1000.0" lower="-0.35" upper="0.35" velocity="100.0"></limit>
+		<dynamics damping="0.01" friction="0.1"></dynamics>
+	</joint>
+	<joint name="r_wrist_yaw" type="revolute">
+		<origin rpy="0 0 0" xyz="0 0 0"></origin>
+		<parent link="r_wrist_dummy_link2"></parent>
+		<child link="r_wrist_link"></child>
+		<axis xyz="0 0 1"></axis>
+		<limit effort="1000.0" lower="-1.57" upper="1.57" velocity="100.0"></limit>
+		<dynamics damping="0.01" friction="0.1"></dynamics>
+	</joint>
+	<joint name="r_hand_palm" type="fixed">
+		<origin rpy="0.0 0 0" xyz="0 0 0"></origin>
+		<parent link="r_wrist_out_link"></parent>
+		<child link="r_hand_palm_link"></child>
+	</joint>
+	<joint name="r_hand_finger" type="revolute">
+		<origin rpy="0 0 0" xyz="0.0 0.0 0.070028"></origin>
+		<parent link="r_hand_palm_link"></parent>
+		<child link="r_hand_virtual_gripper_link"></child>
+		<axis xyz="1 0 0"></axis>
+		<limit effort="100.0" lower="0.0" upper="2.27" velocity="10.0"></limit>
+		<dynamics damping="0.01" friction="0.1"></dynamics>
+	</joint>
+	<joint name="r_hand_finger_proximal" type="revolute">
+		<origin rpy="0 0 0" xyz="-0.010196 0.03792 0.070028"></origin>
+		<parent link="r_hand_palm_link"></parent>
+		<child link="r_hand_proximal_link"></child>
+		<axis xyz="1 0 0"></axis>
+		<limit effort="100.0" lower="-0.51" upper="0.554" velocity="10.0"></limit>
+		<mimic joint="r_hand_finger" multiplier="-0.4689" offset="0.554"></mimic>
+		<dynamics damping="0.01" friction="0.1"></dynamics>
+	</joint>
+	<joint name="r_hand_finger_proximal_mimic" type="revolute">
+		<origin rpy="0 0 3.141592653589793" xyz="-0.010196 -0.03792 0.070028"></origin>
+		<parent link="r_hand_palm_link"></parent>
+		<child link="r_hand_proximal_mimic_link"></child>
+		<axis xyz="1 0 0"></axis>
+		<limit effort="100.0" lower="-0.51" upper="0.554" velocity="10.0"></limit>
+		<dynamics damping="0.01" friction="0.1"></dynamics>
+		<mimic joint="r_hand_finger_proximal" multiplier="1" offset="0"></mimic>
+	</joint>
+	<joint name="r_hand_finger_distal" type="revolute">
+		<origin rpy="0 0 0" xyz="0 0 0.049997"></origin>
+		<parent link="r_hand_proximal_link"></parent>
+		<child link="r_hand_distal_link"></child>
+		<axis xyz="1 0 0"></axis>
+		<limit effort="100.0" lower="-0.51" upper="0.554" velocity="10.0"></limit>
+		<mimic joint="r_hand_finger" multiplier="0.4689" offset="-0.554"></mimic>
+		<dynamics damping="0.01" friction="0.1"></dynamics>
+	</joint>
+	<joint name="r_hand_finger_distal_mimic" type="revolute">
+		<origin rpy="0 0 0" xyz="0 0 0.049997"></origin>
+		<parent link="r_hand_proximal_mimic_link"></parent>
+		<child link="r_hand_distal_mimic_link"></child>
+		<axis xyz="1 0 0"></axis>
+		<limit effort="100.0" lower="-0.51" upper="0.554" velocity="10.0"></limit>
+		<mimic joint="r_hand_finger" multiplier="0.4689" offset="-0.554"></mimic>
+		<dynamics damping="0.01" friction="0.1"></dynamics>
+	</joint>
+	<joint name="r_tip_joint" type="fixed">
+		<origin rpy="3.141592653589793 0 0" xyz="0.0 0 0.10"></origin>
+		<parent link="r_hand_palm_link"></parent>
+		<child link="r_arm_tip"></child>
+	</joint>
+	<joint name="r_tip_joint_bottom" type="fixed">
+		<origin rpy="3.141592653589793 0 0" xyz="-0.028 0 0.14432"></origin>
+		<parent link="r_hand_palm_link"></parent>
+		<child link="r_arm_tip_bottom"></child>
+	</joint>
+	<joint name="l_shoulder_base_joint" type="fixed">
+		<origin rpy="-1.3089969389957472 0 -0.17453292519943295" xyz="0.0 0.2 0.0"></origin>
+		<parent link="torso"></parent>
+		<child link="l_shoulder_base_link"></child>
+	</joint>
+	<joint name="l_shoulder_dummy_1" type="fixed">
+		<origin rpy="0 0 0" xyz="0 0 0"></origin>
+		<parent link="l_shoulder_base_link"></parent>
+		<child link="l_shoulder_dummy_link1"></child>
+	</joint>
+	<joint name="l_shoulder_dummy_2" type="fixed">
+		<origin rpy="1.5707963267948966 0 0" xyz="0 0 0"></origin>
+		<parent link="l_shoulder_dummy_link1"></parent>
+		<child link="l_shoulder_dummy_link2"></child>
+	</joint>
+	<joint name="l_shoulder_pitch" type="revolute">
+		<origin rpy="0 0 0" xyz="0 0 0"></origin>
+		<parent link="l_shoulder_dummy_link2"></parent>
+		<child link="l_shoulder_first_link"></child>
+		<axis xyz="0 1 0"></axis>
+		<limit effort="1000.0" lower="-3.141592653589793" upper="3.141592653589793" velocity="100.0"></limit>
+		<safety_controller k_position="500" k_velocity="500" soft_lower_limit="-3.141592" soft_upper_limit="3.1415"></safety_controller>
+		<dynamics damping="0.01" friction="0.1"></dynamics>
+	</joint>
+	<joint name="l_shoulder_roll" type="revolute">
+		<origin rpy=" 0 0 0" xyz="0 0 0"></origin>
+		<parent link="l_shoulder_first_link"></parent>
+		<child link="l_shoulder_ball_link"></child>
+		<axis xyz="1 0 0"></axis>
+		<limit effort="1000.0" lower="0.0" upper="3.141592653589793" velocity="100.0"></limit>
+		<safety_controller k_position="500" k_velocity="500" soft_lower_limit="-3.1415" soft_upper_limit="3.1415"></safety_controller>
+		<dynamics damping="0.01" friction="0.1"></dynamics>
+	</joint>
+	<joint name="l_shoulder_dummy_out" type="fixed">
+		<origin rpy="1.5707963267948966 0 0" xyz="0 0 0"></origin>
+		<parent link="l_shoulder_ball_link"></parent>
+		<child link="l_shoulder_fix_link"></child>
+	</joint>
+	<joint name="l_elbow_arm_joint" type="fixed">
+		<origin rpy="0 -1.5707963267948966 1.5707963267948966" xyz="0 0 0.0"></origin>
+		<parent link="l_shoulder_fix_link"></parent>
+		<child link="l_elbow_arm_link"></child>
+	</joint>
+	<joint name="l_elbow_base_joint" type="fixed">
+		<origin rpy="0 0 0" xyz="0 0 0.28"></origin>
+		<parent link="l_elbow_arm_link"></parent>
+		<child link="l_elbow_base_link"></child>
+	</joint>
+	<joint name="l_elbow_dummy_1" type="fixed">
+		<origin rpy="0 0 0" xyz="0 0 0"></origin>
+		<parent link="l_elbow_base_link"></parent>
+		<child link="l_elbow_dummy_link1"></child>
+	</joint>
+	<joint name="l_elbow_dummy_2" type="fixed">
+		<origin rpy="3.141592 0 -1.5707963267948966" xyz="0 0 0"></origin>
+		<parent link="l_elbow_dummy_link1"></parent>
+		<child link="l_elbow_dummy_link2"></child>
+	</joint>
+	<joint name="l_elbow_yaw" type="revolute">
+		<origin rpy="0 0 0" xyz="0 0 0"></origin>
+		<parent link="l_elbow_dummy_link2"></parent>
+		<child link="l_elbow_first_link"></child>
+		<axis xyz="0 0 1"></axis>
+		<limit effort="1000.0" lower="-3.141592653589793" upper="3.141592653589793" velocity="100.0"></limit>
+		<safety_controller k_position="500" k_velocity="500" soft_lower_limit="-3.141592" soft_upper_limit="3.1415"></safety_controller>
+		<dynamics damping="0.01" friction="0.1"></dynamics>
+	</joint>
+	<joint name="l_elbow_pitch" type="revolute">
+		<origin rpy=" 0 0 0" xyz="0 0 0"></origin>
+		<parent link="l_elbow_first_link"></parent>
+		<child link="l_elbow_ball_link"></child>
+		<axis xyz="0 1 0"></axis>
+		<limit effort="1000.0" lower="-2.25" upper="0.1" velocity="100.0"></limit>
+		<safety_controller k_position="500" k_velocity="500" soft_lower_limit="-3.1415" soft_upper_limit="3.1415"></safety_controller>
+		<dynamics damping="0.01" friction="0.1"></dynamics>
+	</joint>
+	<joint name="l_elbow_dummy_out" type="fixed">
+		<origin rpy="3.141592 0 1.5707963267948966" xyz="0 0 0"></origin>
+		<parent link="l_elbow_ball_link"></parent>
+		<child link="l_elbow_fix_link"></child>
+	</joint>
+	<joint name="l_elbow_forearm_joint" type="fixed">
+		<origin rpy="0 0 0" xyz="0 0 0.0"></origin>
+		<parent link="l_elbow_fix_link"></parent>
+		<child link="l_elbow_forearm_link"></child>
+	</joint>
+	<joint name="l_wrist_ball_joint" type="fixed">
+		<origin rpy="0 0 0" xyz="0 0 0"></origin>
+		<parent link="l_wrist_link"></parent>
+		<child link="l_wrist_ball_link"></child>
+	</joint>
+	<joint name="l_wrist_base_joint" type="fixed">
+		<origin rpy="3.141592 0 1.5707963267948966" xyz="0 0 0.28"></origin>
+		<parent link="l_elbow_forearm_link"></parent>
+		<child link="l_wrist_base_link"></child>
+	</joint>
+	<joint name="l_wrist_out_joint" type="fixed">
+		<origin rpy="3.141592 0 0" xyz="0 0 0"></origin>
+		<parent link="l_wrist_ball_link"></parent>
+		<child link="l_wrist_out_link"></child>
+	</joint>
+	<joint name="l_wrist_roll" type="revolute">
+		<origin rpy="0 0 0" xyz="0 0 0"></origin>
+		<parent link="l_wrist_base_link"></parent>
+		<child link="l_wrist_dummy_link1"></child>
+		<axis xyz="1 0 0"></axis>
+		<limit effort="1000.0" lower="-0.35" upper="0.35" velocity="100.0"></limit>
+		<dynamics damping="0.01" friction="0.1"></dynamics>
+	</joint>
+	<joint name="l_wrist_pitch" type="revolute">
+		<origin rpy="0 0 0" xyz="0 0 0"></origin>
+		<parent link="l_wrist_dummy_link1"></parent>
+		<child link="l_wrist_dummy_link2"></child>
+		<axis xyz="0 1 0"></axis>
+		<limit effort="1000.0" lower="-0.35" upper="0.35" velocity="100.0"></limit>
+		<dynamics damping="0.01" friction="0.1"></dynamics>
+	</joint>
+	<joint name="l_wrist_yaw" type="revolute">
+		<origin rpy="0 0 0" xyz="0 0 0"></origin>
+		<parent link="l_wrist_dummy_link2"></parent>
+		<child link="l_wrist_link"></child>
+		<axis xyz="0 0 1"></axis>
+		<limit effort="1000.0" lower="-1.57" upper="1.57" velocity="100.0"></limit>
+		<dynamics damping="0.01" friction="0.1"></dynamics>
+	</joint>
+	<joint name="l_hand_palm" type="fixed">
+		<origin rpy="0.0 0 0" xyz="0 0 0"></origin>
+		<parent link="l_wrist_out_link"></parent>
+		<child link="l_hand_palm_link"></child>
+	</joint>
+	<joint name="l_hand_finger" type="revolute">
+		<origin rpy="0 0 0" xyz="0.0 0.0 0.070028"></origin>
+		<parent link="l_hand_palm_link"></parent>
+		<child link="l_hand_virtual_gripper_link"></child>
+		<axis xyz="1 0 0"></axis>
+		<limit effort="100.0" lower="0.0" upper="2.27" velocity="10.0"></limit>
+		<dynamics damping="0.01" friction="0.1"></dynamics>
+	</joint>
+	<joint name="l_hand_finger_proximal" type="revolute">
+		<origin rpy="0 0 0" xyz="-0.010196 0.03792 0.070028"></origin>
+		<parent link="l_hand_palm_link"></parent>
+		<child link="l_hand_proximal_link"></child>
+		<axis xyz="1 0 0"></axis>
+		<limit effort="100.0" lower="-0.51" upper="0.554" velocity="10.0"></limit>
+		<mimic joint="l_hand_finger" multiplier="-0.4689" offset="0.554"></mimic>
+		<dynamics damping="0.01" friction="0.1"></dynamics>
+	</joint>
+	<joint name="l_hand_finger_proximal_mimic" type="revolute">
+		<origin rpy="0 0 3.141592653589793" xyz="-0.010196 -0.03792 0.070028"></origin>
+		<parent link="l_hand_palm_link"></parent>
+		<child link="l_hand_proximal_mimic_link"></child>
+		<axis xyz="1 0 0"></axis>
+		<limit effort="100.0" lower="-0.51" upper="0.554" velocity="10.0"></limit>
+		<dynamics damping="0.01" friction="0.1"></dynamics>
+		<mimic joint="l_hand_finger_proximal" multiplier="1" offset="0"></mimic>
+	</joint>
+	<joint name="l_hand_finger_distal" type="revolute">
+		<origin rpy="0 0 0" xyz="0 0 0.049997"></origin>
+		<parent link="l_hand_proximal_link"></parent>
+		<child link="l_hand_distal_link"></child>
+		<axis xyz="1 0 0"></axis>
+		<limit effort="100.0" lower="-0.51" upper="0.554" velocity="10.0"></limit>
+		<mimic joint="l_hand_finger" multiplier="0.4689" offset="-0.554"></mimic>
+		<dynamics damping="0.01" friction="0.1"></dynamics>
+	</joint>
+	<joint name="l_hand_finger_distal_mimic" type="revolute">
+		<origin rpy="0 0 0" xyz="0 0 0.049997"></origin>
+		<parent link="l_hand_proximal_mimic_link"></parent>
+		<child link="l_hand_distal_mimic_link"></child>
+		<axis xyz="1 0 0"></axis>
+		<limit effort="100.0" lower="-0.51" upper="0.554" velocity="10.0"></limit>
+		<mimic joint="l_hand_finger" multiplier="0.4689" offset="-0.554"></mimic>
+		<dynamics damping="0.01" friction="0.1"></dynamics>
+	</joint>
+	<joint name="l_tip_joint" type="fixed">
+		<origin rpy="3.141592653589793 0 0" xyz="0.0 0 0.10"></origin>
+		<parent link="l_hand_palm_link"></parent>
+		<child link="l_arm_tip"></child>
+	</joint>
+	<joint name="l_tip_joint_bottom" type="fixed">
+		<origin rpy="3.141592653589793 0 0" xyz="-0.028 0 0.14432"></origin>
+		<parent link="l_hand_palm_link"></parent>
+		<child link="l_arm_tip_bottom"></child>
+	</joint>
+	<joint name="depth_cam_l_optical_joint" type="fixed">
+		<origin rpy="-2.399827721492203 0.0 -1.5707963267948966" xyz="0.058 0.025 -0.03"></origin>
+		<parent link="torso"></parent>
+		<child link="depth_cam_l_optical"></child>
+	</joint>
+	<joint name="depth_cam_l_frame_joint" type="fixed">
+		<origin rpy="0.0 0.8290313946973066 0.0" xyz="0.058 0.025 -0.03"></origin>
+		<parent link="torso"></parent>
+		<child link="depth_cam_l_frame"></child>
+	</joint>
+	<joint name="depth_cam_rgb_optical_joint" type="fixed">
+		<origin rpy="-2.399827721492203 0.0 -1.5707963267948966" xyz="0.058 0.0155 -0.03"></origin>
+		<parent link="torso"></parent>
+		<child link="depth_cam_rgb_optical"></child>
+	</joint>
+	<joint name="depth_cam_rgb_optical_frame_joint" type="fixed">
+		<origin rpy="-2.399827721492203 0.0 -1.5707963267948966" xyz="0.058 0.0155 -0.03"></origin>
+		<parent link="torso"></parent>
+		<child link="depth_cam_rgb_optical_frame"></child>
+	</joint>
+	<joint name="depth_cam_rgb_frame_joint" type="fixed">
+		<origin rpy="0.0 0.8290313946973066 0.0" xyz="0.058 0.0155 -0.03"></origin>
+		<parent link="torso"></parent>
+		<child link="depth_cam_rgb_frame"></child>
+	</joint>
+	<joint name="depth_cam_r_optical_joint" type="fixed">
+		<origin rpy="-2.399827721492203 0.0 -1.5707963267948966" xyz="0.058 -0.025 -0.03"></origin>
+		<parent link="torso"></parent>
+		<child link="depth_cam_r_optical"></child>
+	</joint>
+	<joint name="depth_cam_r_frame_joint" type="fixed">
+		<origin rpy="0.0 0.8290313946973066 0.0 " xyz="0.058 -0.025 -0.03"></origin>
+		<parent link="torso"></parent>
+		<child link="depth_cam_r_frame"></child>
+	</joint>
+	<gazebo reference="drivewhl1_link">
+		<mu1 value="0.0"></mu1>
+		<mu2 value="0.0"></mu2>
+		<kp value="10000000.0"></kp>
+		<kd value="1.0"></kd>
+		<fdir1 value="1 0 0"></fdir1>
+		<maxVel>1.0</maxVel>
+		<minDepth>0.0</minDepth>
+		<turnGravityOff>false</turnGravityOff>
+	</gazebo>
+	<gazebo reference="drivewhl2_link">
+		<mu1 value="0.0"></mu1>
+		<mu2 value="0.0"></mu2>
+		<kp value="10000000.0"></kp>
+		<kd value="1.0"></kd>
+		<fdir1 value="1 0 0"></fdir1>
+		<maxVel>1.0</maxVel>
+		<minDepth>0.0</minDepth>
+		<turnGravityOff>false</turnGravityOff>
+	</gazebo>
+	<gazebo reference="drivewhl3_link">
+		<mu1 value="0.0"></mu1>
+		<mu2 value="0.0"></mu2>
+		<kp value="10000000.0"></kp>
+		<kd value="1.0"></kd>
+		<fdir1 value="1 0 0"></fdir1>
+		<maxVel>1.0</maxVel>
+		<minDepth>0.0</minDepth>
+		<turnGravityOff>false</turnGravityOff>
+	</gazebo>
+	<gazebo reference="depth_cam_l_frame">
+		<sensor name="left_camera" type="camera">
+			<always_on>0</always_on>
+			<update_rate>30</update_rate>
+			<camera name="depth_cam_l">
+				<horizontal_fov>1.5707963267948966</horizontal_fov>
+				<image>
+					<width>1280</width>
+					<height>720</height>
+					<format>B8G8R8</format>
+				</image>
+				<distortion>
+					<k1>0.006059</k1>
+					<k2>-0.048786</k2>
+					<k3>0.033282</k3>
+					<p1>-0.000877</p1>
+					<p2>-0.000732</p2>
+					<center>0.5 0.5</center>
+				</distortion>
+				<noise>
+					<type>gaussian</type>
+					<mean>0.0</mean>
+					<stddev>0.007</stddev>
+				</noise>
+			</camera>
+			<plugin filename="libgazebo_ros_camera.so" name="depth_left_camera_controller">
+				<ros>
+					<namespace>camera</namespace>
+					<remapping>left/image_raw:=/camera/left/color/image_raw</remapping>
+					<remapping>left/image_raw/compressed:=/camera/left/color/image_raw/compressed</remapping>
+					<remapping>left/camera_info:=/camera/left/color/camera_info</remapping>
+				</ros>
+				<camera_name>left</camera_name>
+				<frame_name>depth_cam_l_optical</frame_name>
+				<hack_baseline>0.07</hack_baseline>
+			</plugin>
+		</sensor>
+	</gazebo>
+	<gazebo reference="depth_cam_r_frame">
+		<sensor name="right_camera" type="camera">
+			<always_on>0</always_on>
+			<update_rate>30</update_rate>
+			<camera name="depth_cam_r">
+				<horizontal_fov>1.5707963267948966</horizontal_fov>
+				<image>
+					<width>1280</width>
+					<height>720</height>
+					<format>B8G8R8</format>
+				</image>
+				<distortion>
+					<k1>0.006059</k1>
+					<k2>-0.048786</k2>
+					<k3>0.033282</k3>
+					<p1>-0.000877</p1>
+					<p2>-0.000732</p2>
+					<center>0.5 0.5</center>
+				</distortion>
+				<noise>
+					<type>gaussian</type>
+					<mean>0.0</mean>
+					<stddev>0.007</stddev>
+				</noise>
+			</camera>
+			<plugin filename="libgazebo_ros_camera.so" name="depth_right_camera_controller">
+				<ros>
+					<namespace>camera</namespace>
+					<remapping>right/image_raw:=/camera/right/color/image_raw</remapping>
+					<remapping>right/image_raw/compressed:=/camera/right/color/image_raw/compressed</remapping>
+					<remapping>right/camera_info:=/camera/right/color/camera_info</remapping>
+				</ros>
+				<camera_name>right</camera_name>
+				<frame_name>depth_cam_r_optical</frame_name>
+				<hack_baseline>0.07</hack_baseline>
+			</plugin>
+		</sensor>
+	</gazebo>
+	<gazebo reference="depth_cam_l_frame">
+		<sensor name="depth_camera" type="depth">
+			<always_on>true</always_on>
+			<update_rate>30</update_rate>
+			<pose>0 0 0 0 0 0</pose>
+			<camera name="depth_camera">
+				<horizontal_fov>1.5707963267948966</horizontal_fov>
+				<image>
+					<width>1280</width>
+					<height>720</height>
+					<format>B8G8R8</format>
+				</image>
+				<distortion>
+					<k1>0.006059</k1>
+					<k2>-0.048786</k2>
+					<k3>0.033282</k3>
+					<p1>-0.000877</p1>
+					<p2>-0.000732</p2>
+					<center>0.5 0.5</center>
+				</distortion>
+				<clip>
+					<near>0.05</near>
+					<far>8</far>
+				</clip>
+				<noise>
+					<type>gaussian</type>
+					<mean>0.0</mean>
+					<stddev>0.07</stddev>
+				</noise>
+			</camera>
+			<plugin filename="libgazebo_ros_camera.so" name="depth_driver">
+				<ros>
+					<namespace>/</namespace>
+					<remapping>camera/image_raw:=camera/color/image_raw</remapping>
+					<remapping>camera/image_raw/compressed:=camera/color/image_raw/compressed</remapping>
+					<remapping>camera/camera_info:=camera/color/camera_info</remapping>
+					<remapping>camera/image_depth:=camera/depth/image_raw</remapping>
+					<remapping>camera/camera_info_depth:=camera/depth/camera_info</remapping>
+					<remapping>camera/points:=camera/depth/points</remapping>
+				</ros>
+				<camera_name>camera</camera_name>
+				<frame_name>depth_cam_l_optical</frame_name>
+				<hack_baseline>0.07</hack_baseline>
+				<min_depth>0.05</min_depth>
+				<max_depth>8.0</max_depth>
+			</plugin>
+		</sensor>
+	</gazebo>
+	<ros2_control name="zuuu_ros2_control" type="system">
+		<hardware>
+			<plugin>fake_components/GenericSystem</plugin>
+		</hardware>
+		<joint name="drivewhl1_joint">
+			<command_interface name="velocity">
+				<param name="min">-1</param>
+				<param name="max">1</param>
+			</command_interface>
+			<state_interface name="position"></state_interface>
+			<state_interface name="velocity"></state_interface>
+		</joint>
+		<joint name="drivewhl2_joint">
+			<command_interface name="velocity">
+				<param name="min">-1</param>
+				<param name="max">1</param>
+			</command_interface>
+			<state_interface name="position"></state_interface>
+			<state_interface name="velocity"></state_interface>
+		</joint>
+		<joint name="drivewhl3_joint">
+			<command_interface name="velocity">
+				<param name="min">-1</param>
+				<param name="max">1</param>
+			</command_interface>
+			<state_interface name="position"></state_interface>
+			<state_interface name="velocity"></state_interface>
+		</joint>
+	</ros2_control>
+	<ros2_control name="tripod" type="system">
+		<hardware>
+			<plugin>fake_components/GenericSystem</plugin>
+		</hardware>
+		<joint name="tripod_joint">
+			<state_interface name="position">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="velocity">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="effort">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<command_interface name="position"></command_interface>
+		</joint>
+	</ros2_control>
+	<ros2_control name="neck" type="system">
+		<hardware>
+			<plugin>orbita3d_system_hwi/Orbita3dSystem</plugin>
+			<param name="config_file">orbita3d_control/orbita3d_description/config/fake_neck.yaml</param>
+		</hardware>
+		<gpio name="neck">
+			<state_interface name="torque">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="errors"></state_interface>
+			<state_interface name="control_mode"></state_interface>
+			<command_interface name="torque"></command_interface>
+			<command_interface name="control_mode"></command_interface>
+		</gpio>
+		<gpio name="neck_raw_motor_1">
+			<state_interface name="speed_limit"></state_interface>
+			<state_interface name="torque_limit"></state_interface>
+			<state_interface name="p_gain"></state_interface>
+			<state_interface name="i_gain"></state_interface>
+			<state_interface name="d_gain"></state_interface>
+			<state_interface name="motor_temperature"></state_interface>
+			<state_interface name="board_temperature"></state_interface>
+			<state_interface name="motor_currents"></state_interface>
+			<state_interface name="motor_velocities"></state_interface>
+			<command_interface name="speed_limit"></command_interface>
+			<command_interface name="torque_limit"></command_interface>
+			<command_interface name="p_gain"></command_interface>
+			<command_interface name="i_gain"></command_interface>
+			<command_interface name="d_gain"></command_interface>
+		</gpio>
+		<gpio name="neck_raw_motor_2">
+			<state_interface name="speed_limit"></state_interface>
+			<state_interface name="torque_limit"></state_interface>
+			<state_interface name="p_gain"></state_interface>
+			<state_interface name="i_gain"></state_interface>
+			<state_interface name="d_gain"></state_interface>
+			<state_interface name="motor_temperature"></state_interface>
+			<state_interface name="board_temperature"></state_interface>
+			<state_interface name="motor_currents"></state_interface>
+			<state_interface name="motor_velocities"></state_interface>
+			<command_interface name="speed_limit"></command_interface>
+			<command_interface name="torque_limit"></command_interface>
+			<command_interface name="p_gain"></command_interface>
+			<command_interface name="i_gain"></command_interface>
+			<command_interface name="d_gain"></command_interface>
+		</gpio>
+		<gpio name="neck_raw_motor_3">
+			<state_interface name="speed_limit"></state_interface>
+			<state_interface name="torque_limit"></state_interface>
+			<state_interface name="p_gain"></state_interface>
+			<state_interface name="i_gain"></state_interface>
+			<state_interface name="d_gain"></state_interface>
+			<state_interface name="motor_temperature"></state_interface>
+			<state_interface name="board_temperature"></state_interface>
+			<state_interface name="motor_currents"></state_interface>
+			<state_interface name="motor_velocities"></state_interface>
+			<command_interface name="speed_limit"></command_interface>
+			<command_interface name="torque_limit"></command_interface>
+			<command_interface name="p_gain"></command_interface>
+			<command_interface name="i_gain"></command_interface>
+			<command_interface name="d_gain"></command_interface>
+		</gpio>
+		<joint name="neck_roll">
+			<state_interface name="position">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="velocity">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="effort">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<command_interface name="position"></command_interface>
+			<command_interface name="velocity"></command_interface>
+			<command_interface name="effort"></command_interface>
+		</joint>
+		<joint name="neck_pitch">
+			<state_interface name="position">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="velocity">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="effort">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<command_interface name="position"></command_interface>
+			<command_interface name="velocity"></command_interface>
+			<command_interface name="effort"></command_interface>
+		</joint>
+		<joint name="neck_yaw">
+			<state_interface name="position">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="velocity">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="effort">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<command_interface name="position"></command_interface>
+			<command_interface name="velocity"></command_interface>
+			<command_interface name="effort"></command_interface>
+		</joint>
+	</ros2_control>
+	<ros2_control name="antenna" type="system">
+		<hardware>
+			<plugin>dynamixel_2joints_system_hwi/DynamixelSystem</plugin>
+			<param name="dxl_config_file">reachy2_core/reachy_controllers/dynamixel_control/dynamixel_description/config/two_fake.yaml</param>
+		</hardware>
+		<gpio name="antenna_left">
+			<state_interface name="torque">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<command_interface name="torque"></command_interface>
+		</gpio>
+		<gpio name="antenna_right">
+			<state_interface name="torque">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<command_interface name="torque"></command_interface>
+		</gpio>
+		<gpio name="antenna_left_raw_motor">
+			<state_interface name="speed_limit"></state_interface>
+			<state_interface name="torque_limit"></state_interface>
+			<state_interface name="temperature"></state_interface>
+			<state_interface name="mode"></state_interface>
+			<state_interface name="p_gain"></state_interface>
+			<state_interface name="i_gain"></state_interface>
+			<state_interface name="d_gain"></state_interface>
+			<state_interface name="current"></state_interface>
+			<command_interface name="speed_limit"></command_interface>
+			<command_interface name="torque_limit"></command_interface>
+			<command_interface name="mode"></command_interface>
+			<command_interface name="p_gain"></command_interface>
+			<command_interface name="i_gain"></command_interface>
+			<command_interface name="d_gain"></command_interface>
+			<command_interface name="current"></command_interface>
+		</gpio>
+		<gpio name="antenna_right_raw_motor">
+			<state_interface name="speed_limit"></state_interface>
+			<state_interface name="torque_limit"></state_interface>
+			<state_interface name="temperature"></state_interface>
+			<state_interface name="mode"></state_interface>
+			<state_interface name="p_gain"></state_interface>
+			<state_interface name="i_gain"></state_interface>
+			<state_interface name="d_gain"></state_interface>
+			<state_interface name="current"></state_interface>
+			<command_interface name="speed_limit"></command_interface>
+			<command_interface name="torque_limit"></command_interface>
+			<command_interface name="mode"></command_interface>
+			<command_interface name="p_gain"></command_interface>
+			<command_interface name="i_gain"></command_interface>
+			<command_interface name="d_gain"></command_interface>
+			<command_interface name="current"></command_interface>
+		</gpio>
+		<joint name="antenna_left">
+			<state_interface name="position">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="velocity">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="effort">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<command_interface name="position"></command_interface>
+		</joint>
+		<joint name="antenna_right">
+			<state_interface name="position">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="velocity">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="effort">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<command_interface name="position"></command_interface>
+		</joint>
+	</ros2_control>
+	<ros2_control name="r_shoulder" type="system">
+		<hardware>
+			<plugin>orbita2d_system_hwi/Orbita2dSystem</plugin>
+			<param name="config_file">orbita2d_control/orbita2d_description/config/fake_r_shoulder.yaml</param>
+		</hardware>
+		<gpio name="r_shoulder">
+			<state_interface name="torque">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="errors"></state_interface>
+			<command_interface name="torque"></command_interface>
+		</gpio>
+		<gpio name="r_shoulder_raw_motor_1">
+			<state_interface name="speed_limit"></state_interface>
+			<state_interface name="torque_limit"></state_interface>
+			<state_interface name="p_gain"></state_interface>
+			<state_interface name="i_gain"></state_interface>
+			<state_interface name="d_gain"></state_interface>
+			<state_interface name="motor_temperature"></state_interface>
+			<state_interface name="board_temperature"></state_interface>
+			<state_interface name="motor_currents"></state_interface>
+			<state_interface name="motor_velocities"></state_interface>
+			<command_interface name="speed_limit"></command_interface>
+			<command_interface name="torque_limit"></command_interface>
+			<command_interface name="p_gain"></command_interface>
+			<command_interface name="i_gain"></command_interface>
+			<command_interface name="d_gain"></command_interface>
+		</gpio>
+		<gpio name="r_shoulder_raw_motor_2">
+			<state_interface name="speed_limit"></state_interface>
+			<state_interface name="torque_limit"></state_interface>
+			<state_interface name="p_gain"></state_interface>
+			<state_interface name="i_gain"></state_interface>
+			<state_interface name="d_gain"></state_interface>
+			<state_interface name="motor_temperature"></state_interface>
+			<state_interface name="board_temperature"></state_interface>
+			<state_interface name="motor_currents"></state_interface>
+			<state_interface name="motor_velocities"></state_interface>
+			<command_interface name="speed_limit"></command_interface>
+			<command_interface name="torque_limit"></command_interface>
+			<command_interface name="p_gain"></command_interface>
+			<command_interface name="i_gain"></command_interface>
+			<command_interface name="d_gain"></command_interface>
+		</gpio>
+		<joint name="r_shoulder_pitch">
+			<state_interface name="position">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="velocity">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="effort">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<command_interface name="position"></command_interface>
+		</joint>
+		<joint name="r_shoulder_roll">
+			<state_interface name="position">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="velocity">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="effort">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<command_interface name="position"></command_interface>
+		</joint>
+	</ros2_control>
+	<ros2_control name="r_elbow" type="system">
+		<hardware>
+			<plugin>orbita2d_system_hwi/Orbita2dSystem</plugin>
+			<param name="config_file">orbita2d_control/orbita2d_description/config/fake_r_elbow.yaml</param>
+		</hardware>
+		<gpio name="r_elbow">
+			<state_interface name="torque">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="errors"></state_interface>
+			<command_interface name="torque"></command_interface>
+		</gpio>
+		<gpio name="r_elbow_raw_motor_1">
+			<state_interface name="speed_limit"></state_interface>
+			<state_interface name="torque_limit"></state_interface>
+			<state_interface name="p_gain"></state_interface>
+			<state_interface name="i_gain"></state_interface>
+			<state_interface name="d_gain"></state_interface>
+			<state_interface name="motor_temperature"></state_interface>
+			<state_interface name="board_temperature"></state_interface>
+			<state_interface name="motor_currents"></state_interface>
+			<state_interface name="motor_velocities"></state_interface>
+			<command_interface name="speed_limit"></command_interface>
+			<command_interface name="torque_limit"></command_interface>
+			<command_interface name="p_gain"></command_interface>
+			<command_interface name="i_gain"></command_interface>
+			<command_interface name="d_gain"></command_interface>
+		</gpio>
+		<gpio name="r_elbow_raw_motor_2">
+			<state_interface name="speed_limit"></state_interface>
+			<state_interface name="torque_limit"></state_interface>
+			<state_interface name="p_gain"></state_interface>
+			<state_interface name="i_gain"></state_interface>
+			<state_interface name="d_gain"></state_interface>
+			<state_interface name="motor_temperature"></state_interface>
+			<state_interface name="board_temperature"></state_interface>
+			<state_interface name="motor_currents"></state_interface>
+			<state_interface name="motor_velocities"></state_interface>
+			<command_interface name="speed_limit"></command_interface>
+			<command_interface name="torque_limit"></command_interface>
+			<command_interface name="p_gain"></command_interface>
+			<command_interface name="i_gain"></command_interface>
+			<command_interface name="d_gain"></command_interface>
+		</gpio>
+		<joint name="r_elbow_yaw">
+			<state_interface name="position">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="velocity">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="effort">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<command_interface name="position"></command_interface>
+		</joint>
+		<joint name="r_elbow_pitch">
+			<state_interface name="position">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="velocity">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="effort">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<command_interface name="position"></command_interface>
+		</joint>
+	</ros2_control>
+	<ros2_control name="r_wrist" type="system">
+		<hardware>
+			<plugin>orbita3d_system_hwi/Orbita3dSystem</plugin>
+			<param name="config_file">orbita3d_control/orbita3d_description/config/fake.yaml</param>
+		</hardware>
+		<gpio name="r_wrist">
+			<state_interface name="torque">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="errors"></state_interface>
+			<state_interface name="control_mode"></state_interface>
+			<command_interface name="torque"></command_interface>
+			<command_interface name="control_mode"></command_interface>
+		</gpio>
+		<gpio name="r_wrist_raw_motor_1">
+			<state_interface name="speed_limit"></state_interface>
+			<state_interface name="torque_limit"></state_interface>
+			<state_interface name="p_gain"></state_interface>
+			<state_interface name="i_gain"></state_interface>
+			<state_interface name="d_gain"></state_interface>
+			<state_interface name="motor_temperature"></state_interface>
+			<state_interface name="board_temperature"></state_interface>
+			<state_interface name="motor_currents"></state_interface>
+			<state_interface name="motor_velocities"></state_interface>
+			<command_interface name="speed_limit"></command_interface>
+			<command_interface name="torque_limit"></command_interface>
+			<command_interface name="p_gain"></command_interface>
+			<command_interface name="i_gain"></command_interface>
+			<command_interface name="d_gain"></command_interface>
+		</gpio>
+		<gpio name="r_wrist_raw_motor_2">
+			<state_interface name="speed_limit"></state_interface>
+			<state_interface name="torque_limit"></state_interface>
+			<state_interface name="p_gain"></state_interface>
+			<state_interface name="i_gain"></state_interface>
+			<state_interface name="d_gain"></state_interface>
+			<state_interface name="motor_temperature"></state_interface>
+			<state_interface name="board_temperature"></state_interface>
+			<state_interface name="motor_currents"></state_interface>
+			<state_interface name="motor_velocities"></state_interface>
+			<command_interface name="speed_limit"></command_interface>
+			<command_interface name="torque_limit"></command_interface>
+			<command_interface name="p_gain"></command_interface>
+			<command_interface name="i_gain"></command_interface>
+			<command_interface name="d_gain"></command_interface>
+		</gpio>
+		<gpio name="r_wrist_raw_motor_3">
+			<state_interface name="speed_limit"></state_interface>
+			<state_interface name="torque_limit"></state_interface>
+			<state_interface name="p_gain"></state_interface>
+			<state_interface name="i_gain"></state_interface>
+			<state_interface name="d_gain"></state_interface>
+			<state_interface name="motor_temperature"></state_interface>
+			<state_interface name="board_temperature"></state_interface>
+			<state_interface name="motor_currents"></state_interface>
+			<state_interface name="motor_velocities"></state_interface>
+			<command_interface name="speed_limit"></command_interface>
+			<command_interface name="torque_limit"></command_interface>
+			<command_interface name="p_gain"></command_interface>
+			<command_interface name="i_gain"></command_interface>
+			<command_interface name="d_gain"></command_interface>
+		</gpio>
+		<joint name="r_wrist_roll">
+			<state_interface name="position">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="velocity">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="effort">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<command_interface name="position"></command_interface>
+			<command_interface name="velocity"></command_interface>
+			<command_interface name="effort"></command_interface>
+		</joint>
+		<joint name="r_wrist_pitch">
+			<state_interface name="position">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="velocity">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="effort">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<command_interface name="position"></command_interface>
+			<command_interface name="velocity"></command_interface>
+			<command_interface name="effort"></command_interface>
+		</joint>
+		<joint name="r_wrist_yaw">
+			<state_interface name="position">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="velocity">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="effort">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<command_interface name="position"></command_interface>
+			<command_interface name="velocity"></command_interface>
+			<command_interface name="effort"></command_interface>
+		</joint>
+	</ros2_control>
+	<ros2_control name="l_shoulder" type="system">
+		<hardware>
+			<plugin>orbita2d_system_hwi/Orbita2dSystem</plugin>
+			<param name="config_file">orbita2d_control/orbita2d_description/config/fake_l_shoulder.yaml</param>
+		</hardware>
+		<gpio name="l_shoulder">
+			<state_interface name="torque">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="errors"></state_interface>
+			<command_interface name="torque"></command_interface>
+		</gpio>
+		<gpio name="l_shoulder_raw_motor_1">
+			<state_interface name="speed_limit"></state_interface>
+			<state_interface name="torque_limit"></state_interface>
+			<state_interface name="p_gain"></state_interface>
+			<state_interface name="i_gain"></state_interface>
+			<state_interface name="d_gain"></state_interface>
+			<state_interface name="motor_temperature"></state_interface>
+			<state_interface name="board_temperature"></state_interface>
+			<state_interface name="motor_currents"></state_interface>
+			<state_interface name="motor_velocities"></state_interface>
+			<command_interface name="speed_limit"></command_interface>
+			<command_interface name="torque_limit"></command_interface>
+			<command_interface name="p_gain"></command_interface>
+			<command_interface name="i_gain"></command_interface>
+			<command_interface name="d_gain"></command_interface>
+		</gpio>
+		<gpio name="l_shoulder_raw_motor_2">
+			<state_interface name="speed_limit"></state_interface>
+			<state_interface name="torque_limit"></state_interface>
+			<state_interface name="p_gain"></state_interface>
+			<state_interface name="i_gain"></state_interface>
+			<state_interface name="d_gain"></state_interface>
+			<state_interface name="motor_temperature"></state_interface>
+			<state_interface name="board_temperature"></state_interface>
+			<state_interface name="motor_currents"></state_interface>
+			<state_interface name="motor_velocities"></state_interface>
+			<command_interface name="speed_limit"></command_interface>
+			<command_interface name="torque_limit"></command_interface>
+			<command_interface name="p_gain"></command_interface>
+			<command_interface name="i_gain"></command_interface>
+			<command_interface name="d_gain"></command_interface>
+		</gpio>
+		<joint name="l_shoulder_pitch">
+			<state_interface name="position">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="velocity">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="effort">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<command_interface name="position"></command_interface>
+		</joint>
+		<joint name="l_shoulder_roll">
+			<state_interface name="position">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="velocity">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="effort">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<command_interface name="position"></command_interface>
+		</joint>
+	</ros2_control>
+	<ros2_control name="l_elbow" type="system">
+		<hardware>
+			<plugin>orbita2d_system_hwi/Orbita2dSystem</plugin>
+			<param name="config_file">orbita2d_control/orbita2d_description/config/fake_l_elbow.yaml</param>
+		</hardware>
+		<gpio name="l_elbow">
+			<state_interface name="torque">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="errors"></state_interface>
+			<command_interface name="torque"></command_interface>
+		</gpio>
+		<gpio name="l_elbow_raw_motor_1">
+			<state_interface name="speed_limit"></state_interface>
+			<state_interface name="torque_limit"></state_interface>
+			<state_interface name="p_gain"></state_interface>
+			<state_interface name="i_gain"></state_interface>
+			<state_interface name="d_gain"></state_interface>
+			<state_interface name="motor_temperature"></state_interface>
+			<state_interface name="board_temperature"></state_interface>
+			<state_interface name="motor_currents"></state_interface>
+			<state_interface name="motor_velocities"></state_interface>
+			<command_interface name="speed_limit"></command_interface>
+			<command_interface name="torque_limit"></command_interface>
+			<command_interface name="p_gain"></command_interface>
+			<command_interface name="i_gain"></command_interface>
+			<command_interface name="d_gain"></command_interface>
+		</gpio>
+		<gpio name="l_elbow_raw_motor_2">
+			<state_interface name="speed_limit"></state_interface>
+			<state_interface name="torque_limit"></state_interface>
+			<state_interface name="p_gain"></state_interface>
+			<state_interface name="i_gain"></state_interface>
+			<state_interface name="d_gain"></state_interface>
+			<state_interface name="motor_temperature"></state_interface>
+			<state_interface name="board_temperature"></state_interface>
+			<state_interface name="motor_currents"></state_interface>
+			<state_interface name="motor_velocities"></state_interface>
+			<command_interface name="speed_limit"></command_interface>
+			<command_interface name="torque_limit"></command_interface>
+			<command_interface name="p_gain"></command_interface>
+			<command_interface name="i_gain"></command_interface>
+			<command_interface name="d_gain"></command_interface>
+		</gpio>
+		<joint name="l_elbow_yaw">
+			<state_interface name="position">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="velocity">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="effort">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<command_interface name="position"></command_interface>
+		</joint>
+		<joint name="l_elbow_pitch">
+			<state_interface name="position">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="velocity">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="effort">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<command_interface name="position"></command_interface>
+		</joint>
+	</ros2_control>
+	<ros2_control name="l_wrist" type="system">
+		<hardware>
+			<plugin>orbita3d_system_hwi/Orbita3dSystem</plugin>
+			<param name="config_file">orbita3d_control/orbita3d_description/config/fake.yaml</param>
+		</hardware>
+		<gpio name="l_wrist">
+			<state_interface name="torque">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="errors"></state_interface>
+			<state_interface name="control_mode"></state_interface>
+			<command_interface name="torque"></command_interface>
+			<command_interface name="control_mode"></command_interface>
+		</gpio>
+		<gpio name="l_wrist_raw_motor_1">
+			<state_interface name="speed_limit"></state_interface>
+			<state_interface name="torque_limit"></state_interface>
+			<state_interface name="p_gain"></state_interface>
+			<state_interface name="i_gain"></state_interface>
+			<state_interface name="d_gain"></state_interface>
+			<state_interface name="motor_temperature"></state_interface>
+			<state_interface name="board_temperature"></state_interface>
+			<state_interface name="motor_currents"></state_interface>
+			<state_interface name="motor_velocities"></state_interface>
+			<command_interface name="speed_limit"></command_interface>
+			<command_interface name="torque_limit"></command_interface>
+			<command_interface name="p_gain"></command_interface>
+			<command_interface name="i_gain"></command_interface>
+			<command_interface name="d_gain"></command_interface>
+		</gpio>
+		<gpio name="l_wrist_raw_motor_2">
+			<state_interface name="speed_limit"></state_interface>
+			<state_interface name="torque_limit"></state_interface>
+			<state_interface name="p_gain"></state_interface>
+			<state_interface name="i_gain"></state_interface>
+			<state_interface name="d_gain"></state_interface>
+			<state_interface name="motor_temperature"></state_interface>
+			<state_interface name="board_temperature"></state_interface>
+			<state_interface name="motor_currents"></state_interface>
+			<state_interface name="motor_velocities"></state_interface>
+			<command_interface name="speed_limit"></command_interface>
+			<command_interface name="torque_limit"></command_interface>
+			<command_interface name="p_gain"></command_interface>
+			<command_interface name="i_gain"></command_interface>
+			<command_interface name="d_gain"></command_interface>
+		</gpio>
+		<gpio name="l_wrist_raw_motor_3">
+			<state_interface name="speed_limit"></state_interface>
+			<state_interface name="torque_limit"></state_interface>
+			<state_interface name="p_gain"></state_interface>
+			<state_interface name="i_gain"></state_interface>
+			<state_interface name="d_gain"></state_interface>
+			<state_interface name="motor_temperature"></state_interface>
+			<state_interface name="board_temperature"></state_interface>
+			<state_interface name="motor_currents"></state_interface>
+			<state_interface name="motor_velocities"></state_interface>
+			<command_interface name="speed_limit"></command_interface>
+			<command_interface name="torque_limit"></command_interface>
+			<command_interface name="p_gain"></command_interface>
+			<command_interface name="i_gain"></command_interface>
+			<command_interface name="d_gain"></command_interface>
+		</gpio>
+		<joint name="l_wrist_roll">
+			<state_interface name="position">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="velocity">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="effort">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<command_interface name="position"></command_interface>
+			<command_interface name="velocity"></command_interface>
+			<command_interface name="effort"></command_interface>
+		</joint>
+		<joint name="l_wrist_pitch">
+			<state_interface name="position">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="velocity">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="effort">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<command_interface name="position"></command_interface>
+			<command_interface name="velocity"></command_interface>
+			<command_interface name="effort"></command_interface>
+		</joint>
+		<joint name="l_wrist_yaw">
+			<state_interface name="position">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="velocity">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="effort">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<command_interface name="position"></command_interface>
+			<command_interface name="velocity"></command_interface>
+			<command_interface name="effort"></command_interface>
+		</joint>
+	</ros2_control>
+	<ros2_control name="gripper" type="system">
+		<hardware>
+			<plugin>dynamixel_2joints_system_hwi/DynamixelSystem</plugin>
+			<param name="dxl_config_file">reachy2_core/reachy_controllers/dynamixel_control/dynamixel_description/config/two_fake.yaml</param>
+		</hardware>
+		<gpio name="l_hand">
+			<state_interface name="torque">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<command_interface name="torque"></command_interface>
+		</gpio>
+		<gpio name="r_hand">
+			<state_interface name="torque">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<command_interface name="torque"></command_interface>
+		</gpio>
+		<gpio name="l_hand_raw_motor_1">
+			<state_interface name="speed_limit"></state_interface>
+			<state_interface name="torque_limit"></state_interface>
+			<state_interface name="temperature"></state_interface>
+			<state_interface name="mode"></state_interface>
+			<state_interface name="p_gain"></state_interface>
+			<state_interface name="i_gain"></state_interface>
+			<state_interface name="d_gain"></state_interface>
+			<state_interface name="current"></state_interface>
+			<command_interface name="speed_limit"></command_interface>
+			<command_interface name="torque_limit"></command_interface>
+			<command_interface name="mode"></command_interface>
+			<command_interface name="p_gain"></command_interface>
+			<command_interface name="i_gain"></command_interface>
+			<command_interface name="d_gain"></command_interface>
+			<command_interface name="current"></command_interface>
+		</gpio>
+		<gpio name="r_hand_raw_motor_1">
+			<state_interface name="speed_limit"></state_interface>
+			<state_interface name="torque_limit"></state_interface>
+			<state_interface name="temperature"></state_interface>
+			<state_interface name="mode"></state_interface>
+			<state_interface name="p_gain"></state_interface>
+			<state_interface name="i_gain"></state_interface>
+			<state_interface name="d_gain"></state_interface>
+			<state_interface name="current"></state_interface>
+			<command_interface name="speed_limit"></command_interface>
+			<command_interface name="torque_limit"></command_interface>
+			<command_interface name="mode"></command_interface>
+			<command_interface name="p_gain"></command_interface>
+			<command_interface name="i_gain"></command_interface>
+			<command_interface name="d_gain"></command_interface>
+			<command_interface name="current"></command_interface>
+		</gpio>
+		<joint name="l_hand_finger">
+			<state_interface name="position">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="velocity">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="effort">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<command_interface name="position"></command_interface>
+		</joint>
+		<joint name="r_hand_finger">
+			<state_interface name="position">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="velocity">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<state_interface name="effort">
+				<param name="initial_value">0.0</param>
+			</state_interface>
+			<command_interface name="position"></command_interface>
+		</joint>
+	</ros2_control>
+</robot>
