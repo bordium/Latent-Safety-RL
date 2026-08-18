@@ -1,2 +1,45 @@
-isaac/
-conda/
+# ---------------------------------------------------------------------------
+# Large external checkouts and environments (top-level only).
+# Root-anchored on purpose: an unanchored "**reachy2_core/" would also match
+# any nested directory of that name.
+# ---------------------------------------------------------------------------
+/isaac/
+/conda/
+
+# Upstream mesh-source checkout. Not required to USE the robot (the converted
+# USD is committed) -- only to regenerate it, in which case clone it here.
+/reachy2_assets/reachy2_core/
+
+# ---------------------------------------------------------------------------
+# Generated assets -- regenerable from source, large, and machine-specific.
+# ---------------------------------------------------------------------------
+# NOTE: baselines/reachy2/assets/ is deliberately COMMITTED, not ignored.
+# The USD is fully self-contained (meshes baked in at conversion time, zero
+# external references), so shipping it means a fresh clone has a working robot
+# without cloning the 61 MB reachy2_core mesh source or running the converter.
+# Regenerating it is only needed to change import-time settings -- see
+# reachy2_assets/reachy2_usd_scripts/.
+#
+# The inspector's scratch report is not source, though:
+baselines/reachy2/assets/inventory.txt
+
+# URDF derived from reachy2_meshed.urdf by reachy2_assets/reachy2_usd_scripts/prepare_for_isaac.py
+/reachy2_assets/reachy2_isaac.urdf
+
+# ---------------------------------------------------------------------------
+# Python build/runtime artifacts
+# ---------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.python.env
+
+# ---------------------------------------------------------------------------
+# Training artifacts (per-baseline .gitignore files also cover these; these
+# root entries make the intent explicit and catch new baselines).
+# ---------------------------------------------------------------------------
+**/logs/
+**/outputs/
+**/results/
+**/runs/
+**/recordings/
