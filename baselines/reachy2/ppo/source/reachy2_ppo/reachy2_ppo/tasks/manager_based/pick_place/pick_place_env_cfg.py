@@ -43,9 +43,10 @@ from . import mdp
 TABLE_HEIGHT = 0.75
 CUBE_SIZE = 0.05
 #: Base to table centre, along +X.
-TABLE_DIST = 0.6
-#: Base to cube/target, along +X. ~0.38 m from either shoulder -- inside reach.
-REACH_DIST = 0.45
+TABLE_DIST = 0.65
+#: Base to cube/target, along +X. Pushed out for camera framing; much beyond
+#: this and the cube leaves the arm's reach.
+REACH_DIST = 0.52
 #: Height the cube must clear to count as lifted.
 LIFT_HEIGHT = TABLE_HEIGHT + CUBE_SIZE / 2 + 0.06
 
@@ -111,19 +112,17 @@ class Reachy2PickPlaceSceneCfg(InteractiveSceneCfg):
         ),
     )
 
-    # Head POV camera, mounted on `neck_link` (the `head` link is merged away by
-    # importer ext 2.4.30, which ignores the <dont_collapse/> tag).
+    # Head POV camera, mounted on `neck_link` (the `head` link is merged)
     robot_pov_cam = TiledCameraCfg(
         prim_path=f"{{ENV_REGEX_NS}}/Robot/{REACHY2_HEAD_LINK}/RobotPOVCam",
         height=160,
         width=256,
         data_types=["rgb"],
         update_period=0,
-        # BROKEN: this quaternion aims the optical axis roughly straight DOWN,
-        # not forward -- measured quat_w_world ~= (0.996, 0, 0.087, 0), and
-        # rendered frames show only floor (zero table/cube pixels). The offset
-        # position (+X forward, +Z up) is right; the rotation needs redoing.
-        offset=TiledCameraCfg.OffsetCfg(pos=(0.05, 0.0, 0.05), rot=(0.5, -0.5, 0.5, -0.5), convention="ros"),
+        # Camera cfg in robot frame (won't appear visually in simulation)
+        offset=TiledCameraCfg.OffsetCfg(
+            pos=(0.05, 0.0, 0.05), rot=(0.3428, -0.6185, 0.6185, -0.3428), convention="ros"
+        ),
         spawn=sim_utils.PinholeCameraCfg(focal_length=18.0, clipping_range=(0.05, 5.0)),
     )
 
@@ -175,6 +174,13 @@ class ObservationsCfg:
 @configclass
 class EventCfg:
     reset_all = EventTerm(func=base_mdp.reset_scene_to_default, mode="reset")
+
+    # Undriven joints default to a zero drive target, which would flatten the head.
+    hold_head = EventTerm(
+        func=mdp.hold_joints_at_default,
+        mode="reset",
+        params={"asset_cfg": SceneEntityCfg("robot", joint_names=["neck_.*", "antenna_.*"])},
+    )
 
     # Modest randomization so the policy can't memorize a single cube pose.
     reset_cube_pose = EventTerm(

@@ -130,7 +130,6 @@ REACHY2_CFG = ArticulationCfg(
             "r_wrist_yaw": 0.0,
             # Grippers open.
             ".*_hand_finger.*": 0.0,
-            # Head level, antennas neutral, torso lift at the bottom.
             "neck_.*": 0.0,
             "antenna_.*": 0.0,
             "tripod_joint": 0.0,
