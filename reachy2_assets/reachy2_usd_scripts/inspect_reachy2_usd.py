@@ -3,10 +3,9 @@
 Load the converted Reachy2 USD as an Isaac Lab Articulation and report its
 actual joint/body inventory.
 
-This is the gate between "the converter emitted a file" and "the robot is
-usable in a task": it confirms the articulation instantiates, reports the real
-DOF count and ordering, and checks that the link names the task config depends
-on survived fixed-joint merging.
+Confirms the articulation instantiates, reports the real DOF count and
+ordering, and checks the link names the task config depends on. Writes
+assets/inventory.txt.
 
 Usage:
     python inspect_reachy2_usd.py --headless
@@ -34,9 +33,7 @@ import isaaclab.sim as sim_utils
 from isaaclab.assets import Articulation, ArticulationCfg
 from isaaclab.sim import SimulationContext
 
-# This script lives in reachy2_assets/reachy2_usd_scripts/. The URDF sources sit
-# one level up in reachy2_assets/, and the converted USD lands in the PPO
-# baseline's asset directory, which is where REACHY2_CFG loads it from.
+# URDF sources sit one level up; the USD lands where REACHY2_CFG loads it.
 URDF_DIR = Path(__file__).resolve().parents[1]
 REPO_ROOT = Path(__file__).resolve().parents[2]
 ASSETS_DIR = REPO_ROOT / "baselines" / "reachy2" / "assets"

@@ -2,15 +2,11 @@
 """
 Convert the Reachy2 URDF to USD for Isaac Lab.
 
-Input:  reachy2/reachy2_isaac.urdf  (produced by reachy2/prepare_for_isaac.py --
-        adds <dont_collapse/> to EE/head frames, fixes zero-effort antennas,
-        strips ros2_control/gazebo)
-Output: baselines/reachy2/assets/reachy2.usd  (gitignored -- regenerable)
+Input:  reachy2_assets/reachy2_isaac.urdf (from prepare_for_isaac.py)
+Output: baselines/reachy2/assets/reachy2.usd (committed, not gitignored)
 
-The stock IsaacLab CLI (scripts/tools/convert_urdf.py) exposes only
---merge-joints/--fix-base/--joint-stiffness/--joint-damping/--joint-target-type.
-Reachy2 needs per-joint-group gains and mimic-joint conversion, so this
-instantiates UrdfConverterCfg directly instead.
+Uses UrdfConverterCfg directly: the stock IsaacLab CLI cannot set per-joint-group
+gains or mimic-joint conversion, both of which Reachy2 needs.
 
 Usage:
     python convert_reachy2_usd.py [--headless] [--force]
@@ -36,9 +32,7 @@ from pathlib import Path
 
 from isaaclab.sim.converters import UrdfConverter, UrdfConverterCfg
 
-# This script lives in reachy2_assets/reachy2_usd_scripts/. The URDF sources sit
-# one level up in reachy2_assets/, and the converted USD lands in the PPO
-# baseline's asset directory, which is where REACHY2_CFG loads it from.
+# URDF sources sit one level up; the USD lands where REACHY2_CFG loads it.
 URDF_DIR = Path(__file__).resolve().parents[1]
 REPO_ROOT = Path(__file__).resolve().parents[2]
 ASSETS_DIR = REPO_ROOT / "baselines" / "reachy2" / "assets"
@@ -46,17 +40,13 @@ SOURCE_URDF = URDF_DIR / "reachy2_isaac.urdf"
 OUTPUT_DIR = ASSETS_DIR
 OUTPUT_NAME = "reachy2.usd"
 
-# Joint-drive gains per joint group. Every drive_type/target_type/stiffness/
-# damping field accepts a dict keyed by a joint-name REGEX (matched with
-# re.search against URDF joint names), so one config covers all groups.
+# Per-group drive gains, keyed by joint-name regex (matched with re.search).
 #
-# Note: for non-prismatic joints the converter internally scales stiffness and
-# damping by pi/180 (rad->deg), so these are pre-scaling values.
+# NOTE: for non-prismatic joints the converter scales stiffness/damping by
+# pi/180 internally, so these are pre-scaling values.
 #
-# The arms carry the payload and need to hold pose against gravity; the
-# grippers are small and want to be compliant enough not to launch the cube;
-# the neck/antennas/tripod are not in the 16-DOF action space and are stiff
-# purely so they hold position rather than sag.
+# Arms hold pose against gravity; grippers stay compliant enough not to launch
+# the cube; neck/antennas/tripod are undriven and stiff only to avoid sag.
 JOINT_STIFFNESS = {
     r"^[rl]_(shoulder|elbow|wrist)_.*": 800.0,
     r".*_hand_finger.*": 200.0,
@@ -96,26 +86,21 @@ def main():
         usd_file_name=OUTPUT_NAME,
         force_usd_conversion=True,
         make_instanceable=True,
-        # The mobile-base wheel joints are FIXED in this URDF (no rolling DOF
-        # exists), so a floating base has nothing to balance on and would just
-        # topple. Pinning it is correct for tabletop manipulation.
+        # Wheel joints are FIXED in this URDF (no rolling DOF), so a floating
+        # base would just topple.
         fix_base=True,
         root_link_name="base_link",
-        # Mandatory: 55 links have mass < 0.01 kg (min 1e-05) and PhysX's
-        # solver degrades badly on that mass ratio if they survive as bodies.
-        # prepare_for_isaac.py has already exempted the frames we need to keep.
+        # Mandatory: 55 links have mass < 0.01 kg (min 1e-05) and PhysX degrades
+        # badly on that mass ratio if they survive as bodies.
         merge_fixed_joints=True,
-        # Reachy2 has 12 mimic joints including a mimic-of-a-mimic
-        # (*_hand_finger_proximal_mimic -> *_hand_finger_proximal ->
-        # *_hand_finger), a topology PhysX's Mimic Joint API does not support.
-        # Converting them to independent joints avoids the unsupported coupling;
-        # the gripper is then driven through the single *_hand_finger DOF and
-        # the follower joints are held by their drives.
+        # 12 mimic joints include a mimic-of-a-mimic chain
+        # (*_hand_finger_proximal_mimic -> _proximal -> *_hand_finger) that
+        # PhysX's Mimic Joint API cannot represent. Converting to independent
+        # joints drives the gripper through the single *_hand_finger DOF.
         convert_mimic_joints_to_normal_joints=True,
-        # Collision geometry is 85 analytic sphere primitives, zero meshes --
-        # so collider_type never actually applies. Self-collision is off because
-        # the shoulder/upper-arm links carry NO collision geometry at all, which
-        # would make self-collision misleading rather than protective.
+        # collider_type never applies -- collision geometry is 85 analytic
+        # spheres, no meshes. Self-collision is off because the shoulder and
+        # upper-arm links have no collision geometry at all.
         collider_type="convex_hull",
         self_collision=False,
         collision_from_visuals=False,

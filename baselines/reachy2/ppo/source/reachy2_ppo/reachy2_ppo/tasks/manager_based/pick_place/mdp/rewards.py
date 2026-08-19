@@ -5,15 +5,10 @@
 
 """Reward terms for the Reachy2 pick-and-place task.
 
-The terms are deliberately staged so that the task decomposes into a task
-graph -- reach -> grasp -> lift -> transport -> place -- and each stage's
-contribution stays separable in the per-term reward vector that
-`scripts/collect_state_reward_dataset.py` records.
-
-Later stages are *gated* on earlier ones (see `gated_object_target_distance`)
-so the policy cannot collect transport reward by shoving the cube along the
-table without ever picking it up. This mirrors the gating pattern used in the
-nutpouring baseline's rewards.
+Staged reach -> grasp -> lift -> transport -> place, so each stage stays
+separable in the per-term reward vector that
+`scripts/collect_state_reward_dataset.py` records. Later stages are gated on
+earlier ones so they cannot be farmed out of order.
 """
 
 from __future__ import annotations
@@ -29,7 +24,7 @@ if TYPE_CHECKING:
 
 
 def _body_positions(env: ManagerBasedRLEnv, body_names: list[str]) -> torch.Tensor:
-    """World positions of the named robot bodies, shape (num_envs, len(body_names), 3)."""
+    """World positions of the named bodies, (num_envs, len(body_names), 3)."""
     robot: Articulation = env.scene["robot"]
     indices = [robot.data.body_names.index(name) for name in body_names]
     return robot.data.body_pos_w[:, indices]
@@ -41,10 +36,9 @@ def eef_object_distance(
     body_names: list[str],
     object_cfg: SceneEntityCfg,
 ) -> torch.Tensor:
-    """Stage 1 (reach): tanh-kernel reward for bringing the closest hand to the object.
+    """Stage 1 (reach): tanh kernel on the closest hand's distance.
 
-    Takes the minimum over `body_names` so either hand can do the reaching --
-    which hand grasps is not fixed in advance.
+    Minimum over `body_names` -- either hand may do the reaching.
     """
     obj: RigidObject = env.scene[object_cfg.name]
     body_pos = _body_positions(env, body_names)
@@ -60,11 +54,9 @@ def object_is_grasped(
     gripper_cfg: SceneEntityCfg,
     closed_threshold: float,
 ) -> torch.Tensor:
-    """Stage 2 (grasp): 1.0 when a hand is at the object *and* its gripper is closing.
+    """Stage 2 (grasp): hand at the object AND gripper closing.
 
-    Proximity alone is not a grasp -- without the gripper term the policy gets
-    full credit for hovering. Uses the max gripper joint position because only
-    one hand needs to be doing the grasping.
+    The gripper term is what stops hovering from earning full credit.
     """
     robot: Articulation = env.scene["robot"]
     obj: RigidObject = env.scene[object_cfg.name]
@@ -96,10 +88,9 @@ def gated_object_target_distance(
     object_cfg: SceneEntityCfg,
     target_cfg: SceneEntityCfg,
 ) -> torch.Tensor:
-    """Stage 4 (transport): reward for closing object->target distance, gated on lift.
+    """Stage 4 (transport): closes object->target distance, gated on lift.
 
-    The gate is what stops the policy from earning transport reward by sliding
-    the cube across the table.
+    The gate stops the cube being slid across the table for credit.
     """
     obj: RigidObject = env.scene[object_cfg.name]
     target: RigidObject = env.scene[target_cfg.name]
@@ -116,10 +107,9 @@ def object_at_target(
     target_cfg: SceneEntityCfg,
     max_velocity: float,
 ) -> torch.Tensor:
-    """Stage 5 (place): sparse success -- object resting at the target.
+    """Stage 5 (place): sparse success -- object at rest on the target.
 
-    Requires low velocity as well as proximity, so that flinging the cube
-    through the target region does not count as a placement.
+    Low velocity is required so flinging the cube through does not count.
     """
     obj: RigidObject = env.scene[object_cfg.name]
     target: RigidObject = env.scene[target_cfg.name]

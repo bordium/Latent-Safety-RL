@@ -2,28 +2,22 @@
 """
 Derive an Isaac-Sim-import-ready URDF from reachy2_meshed.urdf.
 
-Reads  reachy2_meshed.urdf  (its mesh paths are relative to reachy2/)
+Reads  reachy2_meshed.urdf  (mesh paths relative to reachy2_assets/)
 Writes reachy2_isaac.urdf   (non-destructive; the input is never modified)
 
-Three transformations, each addressing a verified Isaac Sim import problem:
+Three transformations:
 
-1. `<dont_collapse/>` on selected fixed joints.
-   The converter runs with merge_fixed_joints=True (mandatory here: 55 links
-   have mass < 0.01 kg and PhysX chokes on that mass ratio if they survive).
-   But merging collapses 100 bodies to 35 and destroys the link names the task
-   config needs -- r_hand_palm_link/l_hand_palm_link would be absorbed into
-   {r,l}_wrist_link, and `head` into neck_link. This tag (understood by the
-   importer, see IsaacLab/docs/source/how-to/import_new_asset.rst) exempts
-   specific fixed joints from merging so their child links survive as prims.
+1. `<dont_collapse/>` on selected fixed joints, intended to exempt them from
+   merge_fixed_joints=True so the palm and head link names survive.
+   KNOWN INEFFECTIVE on importer ext 2.4.30 -- the frames are merged anyway,
+   which is why the task config targets {l,r}_wrist_link and neck_link instead.
+   Kept because it costs nothing and should start working after an upgrade.
 
-2. Non-zero antenna effort/velocity limits.
-   The URDF declares effort="0.0" velocity="0.0" on antenna_left/antenna_right,
-   which means PhysX can apply no torque at all and the antennas flop around.
+2. Non-zero antenna effort/velocity limits. The URDF declares effort="0.0"
+   velocity="0.0", so PhysX can apply no torque and the antennas flop.
 
-3. Strip <ros2_control> and <gazebo> blocks.
-   Confirmed silently ignored by the importer (its tinyxml2 walker whitelists
-   known tags), so this is cosmetic rather than required -- but it matches Isaac
-   Lab's own documented guidance and keeps the file readable.
+3. Strip <ros2_control> and <gazebo> blocks. Cosmetic -- the importer already
+   ignores them -- but it matches Isaac Lab's guidance.
 
 Usage:
     python3 prepare_for_isaac.py            # write reachy2_isaac.urdf
@@ -35,9 +29,7 @@ import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-# This script lives in reachy2_assets/reachy2_usd_scripts/. The URDF sources sit
-# one level up in reachy2_assets/, and the converted USD lands in the PPO
-# baseline's asset directory, which is where REACHY2_CFG loads it from.
+# URDF sources sit one level up; the USD lands where REACHY2_CFG loads it.
 URDF_DIR = Path(__file__).resolve().parents[1]
 REPO_ROOT = Path(__file__).resolve().parents[2]
 ASSETS_DIR = REPO_ROOT / "baselines" / "reachy2" / "assets"

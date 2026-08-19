@@ -24,11 +24,9 @@ if TYPE_CHECKING:
 
 
 def eef_pos(env: ManagerBasedRLEnv, link_name: str) -> torch.Tensor:
-    """End-effector position relative to the environment origin.
+    """EEF position relative to the env origin.
 
-    World positions differ between parallel envs purely by the tiling offset,
-    so `env.scene.env_origins` is subtracted to keep the observation
-    env-invariant.
+    Subtracting env_origins removes the per-env tiling offset.
     """
     robot: Articulation = env.scene["robot"]
     index = robot.data.body_names.index(link_name)
@@ -36,7 +34,7 @@ def eef_pos(env: ManagerBasedRLEnv, link_name: str) -> torch.Tensor:
 
 
 def eef_quat(env: ManagerBasedRLEnv, link_name: str) -> torch.Tensor:
-    """End-effector orientation (world frame; rotation needs no origin offset)."""
+    """EEF orientation (world frame -- rotation needs no origin offset)."""
     robot: Articulation = env.scene["robot"]
     index = robot.data.body_names.index(link_name)
     return robot.data.body_quat_w[:, index]
@@ -53,7 +51,7 @@ def object_to_target(
     object_cfg: SceneEntityCfg,
     target_cfg: SceneEntityCfg,
 ) -> torch.Tensor:
-    """Vector from the object to the target -- the quantity the task must drive to zero."""
+    """Object -> target vector; the task drives this to zero."""
     obj = env.scene[object_cfg.name]
     target = env.scene[target_cfg.name]
     return target.data.root_pos_w - obj.data.root_pos_w
@@ -64,7 +62,7 @@ def eef_to_object(
     link_name: str,
     object_cfg: SceneEntityCfg,
 ) -> torch.Tensor:
-    """Vector from an end-effector to the object -- drives the reach stage."""
+    """EEF -> object vector; drives the reach stage."""
     robot: Articulation = env.scene["robot"]
     index = robot.data.body_names.index(link_name)
     obj = env.scene[object_cfg.name]
@@ -72,12 +70,11 @@ def eef_to_object(
 
 
 def state_obs(env: ManagerBasedRLEnv) -> torch.Tensor:
-    """Every non-visual policy input, concatenated into one flat vector.
+    """Every non-visual policy input, as one flat vector.
 
-    An `ObsGroup` concatenates either all of its terms or none of them, and the
-    camera frame has to stay unflattened as (H, W, C) for the CNN branch. So all
-    vector-valued quantities are pre-concatenated here, leaving the policy group
-    with exactly two keys: "state" and "vision".
+    An ObsGroup concatenates all terms or none, and the camera frame must stay
+    (H, W, C) for the CNN branch -- so the vector inputs are pre-concatenated
+    here, leaving the group with just "state" and "vision".
     """
     cube = SceneEntityCfg("cube")
     target = SceneEntityCfg("target")

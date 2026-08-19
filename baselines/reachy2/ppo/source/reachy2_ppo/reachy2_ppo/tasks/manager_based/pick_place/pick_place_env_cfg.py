@@ -5,13 +5,9 @@
 
 """Reachy2 bimanual pick-and-place environment.
 
-The robot must pick a cube off a table and place it at a target location. The
-reward is deliberately staged -- reach, grasp, lift, transport, place -- so the
-task decomposes into a task graph and each stage stays separable in the
-per-term reward vector.
-
-Unlike the nutpouring task (which subclasses NVIDIA's GR1T2 scene), this env is
-built from scratch on `ManagerBasedRLEnvCfg`, since there is no upstream
+Pick a cube off a table and place it at a target. Rewards are staged (reach,
+grasp, lift, transport, place) so each stage stays separable in the per-term
+reward vector. Built directly on `ManagerBasedRLEnvCfg` -- there is no upstream
 Reachy2 task to inherit from.
 """
 
@@ -42,9 +38,15 @@ from . import mdp
 # Scene
 ##
 
+# Reachy2 uses ROS REP-103: +X forward, +Y left, +Z up (verified in the URDF --
+# torso at x=+0.08, shoulders at y=+-0.2). Props belong at +X, not +Y.
 TABLE_HEIGHT = 0.75
 CUBE_SIZE = 0.05
-#: Height above the table the cube must clear to count as lifted.
+#: Base to table centre, along +X.
+TABLE_DIST = 0.6
+#: Base to cube/target, along +X. ~0.38 m from either shoulder -- inside reach.
+REACH_DIST = 0.45
+#: Height the cube must clear to count as lifted.
 LIFT_HEIGHT = TABLE_HEIGHT + CUBE_SIZE / 2 + 0.06
 
 
@@ -62,15 +64,16 @@ class Reachy2PickPlaceSceneCfg(InteractiveSceneCfg):
         spawn=sim_utils.DomeLightCfg(color=(0.9, 0.9, 0.9), intensity=3000.0),
     )
 
-    # Reachy2's base is pinned (its wheel joints are fixed in the URDF), so the
-    # robot is simply placed in front of the table.
+    # Base is pinned (wheel joints are fixed in the URDF).
     robot: ArticulationCfg = REACHY2_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
 
     table = AssetBaseCfg(
         prim_path="{ENV_REGEX_NS}/Table",
-        init_state=AssetBaseCfg.InitialStateCfg(pos=(0.0, 0.55, TABLE_HEIGHT / 2)),
+        init_state=AssetBaseCfg.InitialStateCfg(pos=(TABLE_DIST, 0.0, TABLE_HEIGHT / 2)),
         spawn=sim_utils.CuboidCfg(
-            size=(1.0, 0.6, TABLE_HEIGHT),
+            # (depth_x, width_y, height). Front edge at 0.35 m clears the
+            # mobile base's 0.163 m collision sphere.
+            size=(0.5, 1.0, TABLE_HEIGHT),
             rigid_props=sim_utils.RigidBodyPropertiesCfg(kinematic_enabled=True),
             collision_props=sim_utils.CollisionPropertiesCfg(),
             visual_material=sim_utils.PreviewSurfaceCfg(diffuse_color=(0.5, 0.35, 0.2)),
@@ -79,7 +82,9 @@ class Reachy2PickPlaceSceneCfg(InteractiveSceneCfg):
 
     cube = RigidObjectCfg(
         prim_path="{ENV_REGEX_NS}/Cube",
-        init_state=RigidObjectCfg.InitialStateCfg(pos=(-0.15, 0.45, TABLE_HEIGHT + CUBE_SIZE)),
+        # Exact rest height, not dropped -- a 25 mm gap made it bounce and roll
+        # ~100 mm before the episode started.
+        init_state=RigidObjectCfg.InitialStateCfg(pos=(REACH_DIST, -0.15, TABLE_HEIGHT + CUBE_SIZE / 2)),
         spawn=sim_utils.CuboidCfg(
             size=(CUBE_SIZE, CUBE_SIZE, CUBE_SIZE),
             rigid_props=sim_utils.RigidBodyPropertiesCfg(
@@ -93,12 +98,12 @@ class Reachy2PickPlaceSceneCfg(InteractiveSceneCfg):
         ),
     )
 
-    # Kinematic marker: the goal pose. Not physically interactive -- it exists
-    # so reward/observation terms can reference a scene entity rather than a
-    # hardcoded constant, which keeps goal randomization easy to add later.
+    # Kinematic goal marker. A scene entity rather than a constant so reward
+    # terms can reference it and goal randomization stays easy to add.
     target = RigidObjectCfg(
         prim_path="{ENV_REGEX_NS}/Target",
-        init_state=RigidObjectCfg.InitialStateCfg(pos=(0.15, 0.45, TABLE_HEIGHT + CUBE_SIZE)),
+        # Flat, sits just proud of the table surface.
+        init_state=RigidObjectCfg.InitialStateCfg(pos=(REACH_DIST, 0.15, TABLE_HEIGHT + 0.002)),
         spawn=sim_utils.CuboidCfg(
             size=(CUBE_SIZE * 1.4, CUBE_SIZE * 1.4, 0.002),
             rigid_props=sim_utils.RigidBodyPropertiesCfg(kinematic_enabled=True),
@@ -106,15 +111,19 @@ class Reachy2PickPlaceSceneCfg(InteractiveSceneCfg):
         ),
     )
 
-    # Head-mounted POV camera. `head` survives fixed-joint merging only because
-    # prepare_for_isaac.py marks its parent joint <dont_collapse/>.
+    # Head POV camera, mounted on `neck_link` (the `head` link is merged away by
+    # importer ext 2.4.30, which ignores the <dont_collapse/> tag).
     robot_pov_cam = TiledCameraCfg(
         prim_path=f"{{ENV_REGEX_NS}}/Robot/{REACHY2_HEAD_LINK}/RobotPOVCam",
         height=160,
         width=256,
         data_types=["rgb"],
         update_period=0,
-        offset=TiledCameraCfg.OffsetCfg(pos=(0.0, 0.05, 0.05), rot=(0.5, -0.5, 0.5, -0.5), convention="ros"),
+        # BROKEN: this quaternion aims the optical axis roughly straight DOWN,
+        # not forward -- measured quat_w_world ~= (0.996, 0, 0.087, 0), and
+        # rendered frames show only floor (zero table/cube pixels). The offset
+        # position (+X forward, +Z up) is right; the rotation needs redoing.
+        offset=TiledCameraCfg.OffsetCfg(pos=(0.05, 0.0, 0.05), rot=(0.5, -0.5, 0.5, -0.5), convention="ros"),
         spawn=sim_utils.PinholeCameraCfg(focal_length=18.0, clipping_range=(0.05, 5.0)),
     )
 
@@ -128,13 +137,9 @@ class Reachy2PickPlaceSceneCfg(InteractiveSceneCfg):
 class ActionsCfg:
     """16-DOF bimanual action space: 7 joints per arm + 1 gripper per side.
 
-    `preserve_order=True` so the action vector layout matches
-    REACHY2_ARM_GRIPPER_JOINTS rather than the USD's internal DOF ordering --
-    without it the mapping silently depends on import details.
-
-    `use_default_offset=True` means action 0 holds the robot's default pose and
-    the policy only outputs deltas, which is the right starting point for
-    from-scratch RL (a freshly initialized policy outputs ~0).
+    `preserve_order=True` pins the layout to REACHY2_ARM_GRIPPER_JOINTS instead
+    of the USD's DOF order. `use_default_offset=True` makes action 0 hold the
+    default pose, so a freshly initialized policy starts at rest.
     """
 
     arm_action = base_mdp.JointPositionActionCfg(
@@ -185,11 +190,10 @@ class EventCfg:
 
 @configclass
 class RewardsCfg:
-    """Staged rewards forming the pick-and-place task graph.
+    """reach -> grasp -> lift -> transport -> place.
 
-    reach -> grasp -> lift -> transport -> place. Transport is gated on the
-    cube actually being lifted, so the policy cannot farm it by sliding the
-    cube along the table.
+    Transport is gated on the cube being lifted, so it cannot be farmed by
+    sliding the cube along the table.
     """
 
     # --- stage 1: reach ---
@@ -280,9 +284,9 @@ class Reachy2PickPlaceEnvCfg(ManagerBasedRLEnvCfg):
         self.episode_length_s = 10.0
 
         self.sim.dt = 1.0 / 100.0
-        # One camera frame per control step: the policy consumes the image
+        # One camera frame per control step -- the policy consumes an image
         # every decision, so this is functional, not just a cost knob.
         self.sim.render_interval = self.decimation
 
-        self.viewer.eye = (1.5, 1.5, 1.8)
-        self.viewer.lookat = (0.0, 0.5, TABLE_HEIGHT)
+        self.viewer.eye = (1.8, -1.4, 1.7)
+        self.viewer.lookat = (REACH_DIST, 0.0, TABLE_HEIGHT)

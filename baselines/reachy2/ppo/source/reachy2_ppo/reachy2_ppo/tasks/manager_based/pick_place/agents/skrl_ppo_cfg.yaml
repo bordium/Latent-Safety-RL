@@ -1,24 +1,20 @@
 seed: 42
 
 
-# Models are instantiated using skrl's model instantiator utility
 # https://skrl.readthedocs.io/en/latest/api/utils/model_instantiators.html
 #
-# The "policy" observation group has two keys (PolicyCfg.concatenate_terms is
-# False in pick_place_env_cfg.py): "state" (a flat vector) and "vision" (the raw
-# (H, W, C) camera frame). Each gets its own branch, concatenated before the
-# final head.
+# The policy obs group has two keys ("state", "vision"), each with its own
+# branch, concatenated before the final head.
 #
-# Use OBSERVATIONS["..."], not STATES["..."] -- skrl reserves "states" for a
-# separate privileged/asymmetric-critic input (self.state_space), which we do
-# not have, so it is always None; indexing into it crashes model init with
-# "'NoneType' object is not subscriptable".
+# Use OBSERVATIONS[...], never STATES[...] -- skrl reserves "states" for an
+# asymmetric-critic input we do not have, so it is None and indexing it
+# crashes model init.
 models:
   separate: False
   policy:  # see gaussian_model parameters
     class: GaussianMixin
-    # Must stay False: the joint-position action space is not bounded to a
-    # fixed range, so skrl has nothing to clamp against and errors out.
+    # Must stay False: the joint-position action space has no fixed range
+    # for skrl to clamp against.
     clip_actions: False
     clip_log_std: True
     min_log_std: -20.0
@@ -76,8 +72,7 @@ memory:
 # https://skrl.readthedocs.io/en/latest/api/agents/ppo.html
 agent:
   class: PPO
-  # Each sample carries a full camera frame, so rollout memory scales as
-  # images x num_envs x rollouts -- watch GPU memory before raising these.
+  # Memory scales as images x num_envs x rollouts -- watch VRAM.
   rollouts: 24
   learning_epochs: 5
   mini_batches: 4
@@ -87,9 +82,8 @@ agent:
   learning_rate_scheduler: KLAdaptiveLR
   learning_rate_scheduler_kwargs:
     kl_threshold: 0.008
-  # Images are already scaled/mean-centered by the "vision" obs term
-  # (normalize: True), and a single RunningStandardScaler over a dict input is
-  # not meaningful, so input preprocessing is left to the per-branch handling.
+  # The vision term already normalizes, and one scaler over a dict input is
+  # not meaningful, so preprocessing is left per-branch.
   state_preprocessor: null
   state_preprocessor_kwargs: null
   value_preprocessor: RunningStandardScaler
