@@ -115,8 +115,8 @@ class Reachy2PickPlaceSceneCfg(InteractiveSceneCfg):
     # Head POV camera, mounted on `neck_link` (the `head` link is merged)
     robot_pov_cam = TiledCameraCfg(
         prim_path=f"{{ENV_REGEX_NS}}/Robot/{REACHY2_HEAD_LINK}/RobotPOVCam",
-        height=160,
-        width=256,
+        height=80,
+        width=128,
         data_types=["rgb"],
         update_period=0,
         # Camera cfg in robot frame (won't appear visually in simulation)
