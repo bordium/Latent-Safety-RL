@@ -3,15 +3,10 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
-"""Package containing task implementations for the extension."""
-
-##
-# Register Gym environments.
-##
+"""Task implementations; importing this registers every Gym environment below it."""
 
 from isaaclab_tasks.utils import import_packages
 
-# The blacklist is used to prevent importing configs from sub-packages
+# Blacklisted sub-packages are not scanned for configs.
 _BLACKLIST_PKGS = ["utils", ".mdp"]
-# Import all configs in this package
 import_packages(__name__, _BLACKLIST_PKGS)

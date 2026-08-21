@@ -22,12 +22,7 @@ def hold_joints_at_default(
     env_ids: torch.Tensor | None,
     asset_cfg: SceneEntityCfg,
 ) -> None:
-    """Point the drive targets of undriven joints at their default positions.
-
-    `joint_pos_target` initializes to 0.0, not to `default_joint_pos`, so any
-    joint outside the action space is actively pulled to zero regardless of
-    `init_state`. The head would otherwise never keep its downward pitch.
-    """
+    """Point undriven joints' drive targets at their defaults; they initialise to 0.0, not there."""
     robot: Articulation = env.scene[asset_cfg.name]
     if env_ids is None:
         env_ids = torch.arange(env.num_envs, device=robot.device)

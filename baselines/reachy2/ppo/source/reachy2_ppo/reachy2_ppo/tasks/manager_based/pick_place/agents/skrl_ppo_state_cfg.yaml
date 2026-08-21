@@ -1,8 +1,7 @@
 seed: 42
 
 
-# https://skrl.readthedocs.io/en/latest/api/utils/model_instantiators.html
-# The policy obs group has two keys, each with its own branch, concatenated before the head.
+# State-only counterpart of skrl_ppo_cfg.yaml: same PPO settings, plain MLP.
 models:
   separate: False
   policy:  # see gaussian_model parameters
@@ -14,42 +13,18 @@ models:
     max_log_std: 2.0
     initial_log_std: -1.0
     network:
-      - name: vision_features
-        input: permute(OBSERVATIONS["vision"], (0, 3, 1, 2))  # NHWC -> NCHW. Don't permute for JAX (expects NHWC).
-        layers:
-          - conv2d: {out_channels: 32, kernel_size: 8, stride: 4, padding: 0}
-          - conv2d: {out_channels: 64, kernel_size: 4, stride: 2, padding: 0}
-          - conv2d: {out_channels: 64, kernel_size: 3, stride: 1, padding: 0}
-          - flatten
-        activations: relu
-      - name: state_features
-        input: OBSERVATIONS["state"]
-        layers: [256]
-        activations: elu
       - name: net
-        input: concatenate([vision_features, state_features])
-        layers: [256, 128]
+        input: OBSERVATIONS
+        layers: [256, 256, 128]
         activations: elu
     output: ACTIONS
   value:  # see deterministic_model parameters
     class: DeterministicMixin
     clip_actions: False
     network:
-      - name: vision_features
-        input: permute(OBSERVATIONS["vision"], (0, 3, 1, 2))
-        layers:
-          - conv2d: {out_channels: 32, kernel_size: 8, stride: 4, padding: 0}
-          - conv2d: {out_channels: 64, kernel_size: 4, stride: 2, padding: 0}
-          - conv2d: {out_channels: 64, kernel_size: 3, stride: 1, padding: 0}
-          - flatten
-        activations: relu
-      - name: state_features
-        input: OBSERVATIONS["state"]
-        layers: [256]
-        activations: elu
       - name: net
-        input: concatenate([vision_features, state_features])
-        layers: [256, 128]
+        input: OBSERVATIONS
+        layers: [256, 256, 128]
         activations: elu
     output: ONE
 
@@ -63,8 +38,8 @@ memory:
 # PPO agent configuration; field names are from PPO_DEFAULT_CONFIG.
 agent:
   class: PPO
-  # Memory scales as images x num_envs x rollouts -- watch VRAM.
-  rollouts: 24
+  # No images in the rollout buffer, so this can exceed the vision config's 24.
+  rollouts: 32
   learning_epochs: 5
   mini_batches: 4
   discount_factor: 0.99
@@ -73,8 +48,8 @@ agent:
   learning_rate_scheduler: KLAdaptiveLR
   learning_rate_scheduler_kwargs:
     kl_threshold: 0.008
-  # The vision term already normalizes, and one scaler over a dict input is meaningless.
-  state_preprocessor: null
+  # One flat observation vector, so a running scaler over the whole input is meaningful.
+  state_preprocessor: RunningStandardScaler
   state_preprocessor_kwargs: null
   value_preprocessor: RunningStandardScaler
   value_preprocessor_kwargs: null
@@ -91,7 +66,7 @@ agent:
   time_limit_bootstrap: False
   # logging and checkpoint
   experiment:
-    directory: "reachy2_pick_place_ppo"
+    directory: "reachy2_pick_place_state_ppo"
     experiment_name: ""
     write_interval: auto
     checkpoint_interval: auto

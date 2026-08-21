@@ -3,13 +3,7 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
-"""Reward terms for the Reachy2 pick-and-place task.
-
-Staged reach -> grasp -> lift -> transport -> place, so each stage stays
-separable in the per-term reward vector that
-`scripts/collect_state_reward_dataset.py` records. Later stages are gated on
-earlier ones so they cannot be farmed out of order.
-"""
+"""Reward terms for the Reachy2 pick-and-place task: reach, grasp, lift, transport, place."""
 
 from __future__ import annotations
 
@@ -17,58 +11,59 @@ import torch
 from typing import TYPE_CHECKING
 
 from isaaclab.assets import Articulation, RigidObject
-from isaaclab.managers import SceneEntityCfg
+from isaaclab.managers import ManagerTermBase, RewardTermCfg, SceneEntityCfg
+from isaaclab.utils.math import matrix_from_quat, quat_apply
+
+from reachy2_ppo.assets.reachy2 import REACHY2_FINGERTIP_OFFSET
 
 if TYPE_CHECKING:
     from isaaclab.envs import ManagerBasedRLEnv
 
 
-def _body_positions(env: ManagerBasedRLEnv, body_names: list[str]) -> torch.Tensor:
-    """World positions of the named bodies, (num_envs, len(body_names), 3)."""
+def _pinch_centres(env: ManagerBasedRLEnv, finger_links: list[list[str]]) -> torch.Tensor:
+    """Fingertip midpoint per hand -- the true grasp point, unlike the knuckle EEF frames."""
     robot: Articulation = env.scene["robot"]
-    indices = [robot.data.body_names.index(name) for name in body_names]
-    return robot.data.body_pos_w[:, indices]
+    offset = torch.tensor(REACHY2_FINGERTIP_OFFSET, device=env.device).expand(env.num_envs, 3)
+    centres = []
+    for pair in finger_links:
+        ids = [robot.data.body_names.index(n) for n in pair]
+        tips = [robot.data.body_pos_w[:, i] + quat_apply(robot.data.body_quat_w[:, i], offset) for i in ids]
+        centres.append(0.5 * (tips[0] + tips[1]))
+    return torch.stack(centres, dim=1)
 
 
 def eef_object_distance(
     env: ManagerBasedRLEnv,
     std: float,
-    body_names: list[str],
+    finger_links: list[list[str]],
     object_cfg: SceneEntityCfg,
 ) -> torch.Tensor:
-    """Stage 1 (reach): tanh kernel on the closest hand's distance.
-
-    Minimum over `body_names` -- either hand may do the reaching.
-    """
+    """Stage 1 (reach): tanh kernel on the closest hand's fingertip-midpoint distance."""
     obj: RigidObject = env.scene[object_cfg.name]
-    body_pos = _body_positions(env, body_names)
+    body_pos = _pinch_centres(env, finger_links)
     distance = torch.norm(body_pos - obj.data.root_pos_w.unsqueeze(1), dim=-1)
     return 1.0 - torch.tanh(torch.min(distance, dim=1).values / std)
 
 
-def object_is_grasped(
+def grasp_contact_force(
     env: ManagerBasedRLEnv,
-    grasp_distance: float,
-    body_names: list[str],
-    object_cfg: SceneEntityCfg,
-    gripper_cfg: SceneEntityCfg,
-    closed_threshold: float,
+    sensor_cfg: SceneEntityCfg,
+    finger_pairs: list[list[str]],
+    force_threshold: float,
 ) -> torch.Tensor:
-    """Stage 2 (grasp): hand at the object AND gripper closing.
+    """Binary: both opposing fingertips pressing on the object. Squeezing air scores zero."""
+    sensor = env.scene[sensor_cfg.name]
+    forces = sensor.data.force_matrix_w
+    if forces is None:
+        return torch.zeros(env.num_envs, device=env.device)
 
-    The gripper term is what stops hovering from earning full credit.
-    """
-    robot: Articulation = env.scene["robot"]
-    obj: RigidObject = env.scene[object_cfg.name]
-
-    body_pos = _body_positions(env, body_names)
-    distance = torch.norm(body_pos - obj.data.root_pos_w.unsqueeze(1), dim=-1)
-    is_near = torch.min(distance, dim=1).values < grasp_distance
-
-    gripper_pos = robot.data.joint_pos[:, gripper_cfg.joint_ids]
-    is_closing = torch.max(gripper_pos, dim=1).values > closed_threshold
-
-    return (is_near & is_closing).float()
+    magnitude = torch.norm(forces, dim=-1).sum(dim=-1)
+    names = list(sensor.body_names)
+    grasped = torch.zeros(env.num_envs, device=env.device, dtype=torch.bool)
+    for pair in finger_pairs:
+        a, b = (names.index(n) for n in pair)
+        grasped |= (magnitude[:, a] > force_threshold) & (magnitude[:, b] > force_threshold)
+    return grasped.float()
 
 
 def object_is_lifted(
@@ -81,39 +76,73 @@ def object_is_lifted(
     return torch.where(obj.data.root_pos_w[:, 2] > minimal_height, 1.0, 0.0)
 
 
+def object_lowest_vertex_height(env: ManagerBasedRLEnv, half_extent: float, object_cfg: SceneEntityCfg):
+    """World height of the cube's lowest corner; scores tipping at zero, unlike the centre."""
+    obj: RigidObject = env.scene[object_cfg.name]
+    # Third row of R is world-z in body coords.
+    rot = matrix_from_quat(obj.data.root_quat_w)
+    drop = half_extent * rot[:, 2, :].abs().sum(dim=-1)
+    return obj.data.root_pos_w[:, 2] - drop
+
+
+def object_lift_progress(
+    env: ManagerBasedRLEnv,
+    rest_height: float,
+    minimal_height: float,
+    object_cfg: SceneEntityCfg,
+    half_extent: float,
+) -> torch.Tensor:
+    """Stage 3 shaping: lift ramp on the lowest vertex, so tipping cannot farm it."""
+    lowest = object_lowest_vertex_height(env, half_extent, object_cfg)
+    table = rest_height - half_extent
+    return ((lowest - table) / (minimal_height - rest_height)).clamp(0.0, 1.0)
+
+
 def gated_object_target_distance(
     env: ManagerBasedRLEnv,
     std: float,
+    rest_height: float,
     minimal_height: float,
     object_cfg: SceneEntityCfg,
     target_cfg: SceneEntityCfg,
+    half_extent: float,
 ) -> torch.Tensor:
-    """Stage 4 (transport): closes object->target distance, gated on lift.
-
-    The gate stops the cube being slid across the table for credit.
-    """
+    """Stage 4 (transport): object->target distance, gated on lift so sliding earns nothing."""
     obj: RigidObject = env.scene[object_cfg.name]
     target: RigidObject = env.scene[target_cfg.name]
 
-    lifted = object_is_lifted(env, minimal_height, object_cfg)
+    lifted = object_lift_progress(env, rest_height, minimal_height, object_cfg, half_extent)
     distance = torch.norm(obj.data.root_pos_w - target.data.root_pos_w, dim=1)
     return lifted * (1.0 - torch.tanh(distance / std))
 
 
-def object_at_target(
-    env: ManagerBasedRLEnv,
-    threshold: float,
-    object_cfg: SceneEntityCfg,
-    target_cfg: SceneEntityCfg,
-    max_velocity: float,
-) -> torch.Tensor:
-    """Stage 5 (place): sparse success -- object at rest on the target.
+class ObjectPlacedAfterLift(ManagerTermBase):
+    """Stage 5 (place), payable only after a real lift; latches a per-env "was lifted" flag."""
 
-    Low velocity is required so flinging the cube through does not count.
-    """
-    obj: RigidObject = env.scene[object_cfg.name]
-    target: RigidObject = env.scene[target_cfg.name]
+    def __init__(self, cfg: RewardTermCfg, env: ManagerBasedRLEnv):
+        super().__init__(cfg, env)
+        self._was_lifted = torch.zeros(env.num_envs, dtype=torch.bool, device=env.device)
 
-    distance = torch.norm(obj.data.root_pos_w - target.data.root_pos_w, dim=1)
-    speed = torch.norm(obj.data.root_lin_vel_w, dim=1)
-    return ((distance < threshold) & (speed < max_velocity)).float()
+    def reset(self, env_ids: torch.Tensor | None = None) -> None:
+        if env_ids is None:
+            self._was_lifted[:] = False
+        else:
+            self._was_lifted[env_ids] = False
+
+    def __call__(
+        self,
+        env: ManagerBasedRLEnv,
+        threshold: float,
+        minimal_height: float,
+        object_cfg: SceneEntityCfg,
+        target_cfg: SceneEntityCfg,
+        max_velocity: float,
+    ) -> torch.Tensor:
+        obj: RigidObject = env.scene[object_cfg.name]
+        target: RigidObject = env.scene[target_cfg.name]
+
+        self._was_lifted |= obj.data.root_pos_w[:, 2] > minimal_height
+
+        distance = torch.norm(obj.data.root_pos_w - target.data.root_pos_w, dim=1)
+        speed = torch.norm(obj.data.root_lin_vel_w, dim=1)
+        return ((distance < threshold) & (speed < max_velocity) & self._was_lifted).float()

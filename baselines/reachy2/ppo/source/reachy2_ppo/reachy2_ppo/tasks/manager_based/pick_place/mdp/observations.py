@@ -24,17 +24,14 @@ if TYPE_CHECKING:
 
 
 def eef_pos(env: ManagerBasedRLEnv, link_name: str) -> torch.Tensor:
-    """EEF position relative to the env origin.
-
-    Subtracting env_origins removes the per-env tiling offset.
-    """
+    """EEF position relative to the env origin, removing the per-env tiling offset."""
     robot: Articulation = env.scene["robot"]
     index = robot.data.body_names.index(link_name)
     return robot.data.body_pos_w[:, index] - env.scene.env_origins
 
 
 def eef_quat(env: ManagerBasedRLEnv, link_name: str) -> torch.Tensor:
-    """EEF orientation (world frame -- rotation needs no origin offset)."""
+    """EEF orientation in the world frame; rotation needs no origin offset."""
     robot: Articulation = env.scene["robot"]
     index = robot.data.body_names.index(link_name)
     return robot.data.body_quat_w[:, index]
@@ -70,12 +67,7 @@ def eef_to_object(
 
 
 def state_obs(env: ManagerBasedRLEnv) -> torch.Tensor:
-    """Every non-visual policy input, as one flat vector.
-
-    An ObsGroup concatenates all terms or none, and the camera frame must stay
-    (H, W, C) for the CNN branch -- so the vector inputs are pre-concatenated
-    here, leaving the group with just "state" and "vision".
-    """
+    """Every non-visual policy input as one flat vector, so the group is just state + vision."""
     cube = SceneEntityCfg("cube")
     target = SceneEntityCfg("target")
     return torch.cat(
