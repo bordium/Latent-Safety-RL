@@ -3,10 +3,6 @@
 Load the converted Reachy2 USD as an Isaac Lab Articulation and report its
 actual joint/body inventory.
 
-Confirms the articulation instantiates, reports the real DOF count and
-ordering, and checks the link names the task config depends on. Writes
-assets/inventory.txt.
-
 Usage:
     python inspect_reachy2_usd.py --headless
 """
@@ -39,13 +35,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 ASSETS_DIR = REPO_ROOT / "baselines" / "reachy2" / "assets"
 USD_PATH = ASSETS_DIR / "reachy2.usd"
 
-# Link names the pick-and-place task config will depend on. prepare_for_isaac.py
-# marked the fixed joints producing these with <dont_collapse/> so they survive
-# merge_fixed_joints=True.
-# The frames the task config actually uses. NOTE: these are the wrist/neck
-# links, not the palm/head links -- <dont_collapse/> does not survive this
-# importer build, so the task uses the merged survivors instead (they are
-# rigidly related by a fixed joint). See assets/reachy2.py for the rationale.
+# Link names the pick-and-place task config will depend on.
 REQUIRED_BODIES = ["r_wrist_link", "l_wrist_link", "neck_link"]
 
 # The 16 joints intended for the PPO action space (14 arm + 2 gripper).
@@ -140,10 +130,5 @@ def main():
 
 if __name__ == "__main__":
     code = main()
-    # Kit's shutdown reliably hangs (or segfaults) on this Isaac Sim build when
-    # closing a headless app -- see isaac-sim/IsaacSim#3730. The report is
-    # already written to disk by this point, so skip the graceful teardown and
-    # exit immediately; otherwise this script never returns and cannot be
-    # chained after other commands.
     simulation_app.close()
     os._exit(code)

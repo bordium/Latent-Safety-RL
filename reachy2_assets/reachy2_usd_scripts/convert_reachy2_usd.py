@@ -5,8 +5,7 @@ Convert the Reachy2 URDF to USD for Isaac Lab.
 Input:  reachy2_assets/reachy2_isaac.urdf (from prepare_for_isaac.py)
 Output: baselines/reachy2/assets/reachy2.usd (committed, not gitignored)
 
-Uses UrdfConverterCfg directly: the stock IsaacLab CLI cannot set per-joint-group
-gains or mimic-joint conversion, both of which Reachy2 needs.
+Uses UrdfConverterCfg directly.
 
 Usage:
     python convert_reachy2_usd.py [--headless] [--force]
@@ -41,12 +40,6 @@ OUTPUT_DIR = ASSETS_DIR
 OUTPUT_NAME = "reachy2.usd"
 
 # Per-group drive gains, keyed by joint-name regex (matched with re.search).
-#
-# NOTE: for non-prismatic joints the converter scales stiffness/damping by
-# pi/180 internally, so these are pre-scaling values.
-#
-# Arms hold pose against gravity; grippers stay compliant enough not to launch
-# the cube; neck/antennas/tripod are undriven and stiff only to avoid sag.
 JOINT_STIFFNESS = {
     r"^[rl]_(shoulder|elbow|wrist)_.*": 800.0,
     r".*_hand_finger.*": 200.0,
